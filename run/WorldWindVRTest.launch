@@ -2,7 +2,7 @@
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="bad_container_name" value="\WorldWindVR\run\W"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/WorldWindVR/src/com/tuohy/worldwindvr/FullScreenTest.java"/>
+<listEntry value="/worldwind-vr/src/com/tuohy/worldwindvr/FullScreenTest.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -13,6 +13,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_13 32-bit"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.tuohy.worldwindvr.FullScreenTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="x"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="WorldWindVR"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="worldwind-vr"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=.;./native_libraries -Dswing.aatext=true -Xmx1024m"/>
 </launchConfiguration>
