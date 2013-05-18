@@ -54,11 +54,6 @@ public class FullScreenTest{
                             }
                     }
             });
-
-            RenderableLayer creditsLayer = new RenderableLayer();
-            creditsLayer.setName("Credits");
-            creditsLayer.addRenderable(createCredits());
-            worldWindowGLCanvas.getModel().getLayers().add(creditsLayer);
             
             frame.add(worldWindowGLCanvas);
             frame.setSize(640, 480);

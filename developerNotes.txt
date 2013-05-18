@@ -1,0 +1,69 @@
+================== Tasks ==================
+Status  |         Description           
+ DONE   | Display in Full Screen  
+ DONE   | Use basic First Person view
+ TODO   | Create project on GitHub
+ TODO   | Create README targeted at users who just want to run the project in current state
+ TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it
+ TODO   | Remove HUD
+ TODO   | Display in Oculus Rift resolution 1280x800
+ TODO   | SBS stereo rendering
+ TODO   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
+ TODO   | Apply Barrel Distortion
+ TODO   | Java JNI wrapper for Rift DLL (JRift?)
+ TODO   | Manipulate camera pitch/yaw/roll using data from Rift DLL
+ TODO   | Intuitive mechanisms for interpreting keyboard/mouse input to navigate globe in First Person
+ TODO   | Adaptive/Heuristic methods for adjusting interpupillary distance for greatest effect (without headaches) when navigating globe
+ TODO   | Make sure everything works with 32-bit and 64-bit Java runtimes
+ TODO   | Do something reasonable with vsync (unclear if that means turning on or off)
+ TODO   | Devise build process that generates most convenient distribution for users
+ TODO   | Update README, publish to various forums that project is ready for people to play with
+ 
+================= Development ==================
+**** IDE ****
+WorldwindVR is being developed in Eclipse, which can be downloaded at http://www.eclipse.org/downloads/
+
+*** Version Control ****
+The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the EGit plug-in.
+
+*** Checking out JRift ***
+(1) Copy the following to clipboard: https://github.com/38leinaD/JRift.git
+(2) Window -> Show View -> Other... -> Git -> Git Repositories
+(3) In the Git Repositories window, right click -> Paste Repository Path or URI
+(4) Create the JRift directory using wizard.
+(5) File ->  New -> Java Project 
+(6) Create project with name JRift, which will automatically build a project using the Git directory.
+ 
+================= Other Notes ================
+
+This may provide info on how to render SBS 3D:
+ - http://fivedots.coe.psu.ac.th/~ad/jg2/jogl4/index.html
+ - combine with technique for moving view and rendering both as in StereoOptionSceneController.doDrawToStereoDevice(DrawContext dc)
+ - http://stackoverflow.com/questions/5002254/adapt-existing-code-for-opengl-stereoscopic-rendering
+How to enable vsync?
+ -  // Enable VSync
+    gl.setSwapInterval(1);
+ - from http://stackoverflow.com/questions/6497304/when-using-textures-in-a-jogl-application-ati-graphics-cards-all-eventually-cra
+ 
+Will likely need to use gov.nasa.worldwind.view.firstperson.BasicFlyView
+
+(1) Someone will probably write a JNI wrapper for us, but if not we have to.
+(2) Someone will probably (even sooner than JNI) write an OpenGL shader or example that could solve both the lens distortion and SBS frame drawing problem for us.
+
+
+============== Fixes for Exceptions you might encounter ===========
+
+
+*** EXCEPTION ***
+Exception in thread "main" java.lang.UnsatisfiedLinkError: C:\Users\dtuohy\AppData\Local\Temp\jogamp_0000\file_cache\jln8738110590367623316\jln2605075625072842271\gluegen-rt.dll: Can't find dependent libraries
+	at java.lang.ClassLoader$NativeLibrary.load(Native Method)
+	at java.lang.ClassLoader.loadLibrary0(Unknown Source)
+	at java.lang.ClassLoader.loadLibrary(Unknown Source)
+	at java.lang.Runtime.load0(Unknown Source)
+	at java.lang.System.load(Unknown Source)
+	at com.jogamp.common.jvm.JNILibLoaderBase.loadLibraryInternal(JNILibLoaderBase.java:437)
+	at com.jogamp.common.jvm.JNILibLoaderBase.access$000(JNILibLoaderBase.java:59)
+
+*** SOLUTION ***
+Make sure you are running with a 32-bit version of Java.
+	
