@@ -8,6 +8,7 @@ Status  |         Description
  TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it
  TODO   | Remove HUD
  TODO   | Display in Oculus Rift resolution 1280x800
+ DONE   | SBS Mono rendering
  TODO   | SBS stereo rendering
  TODO   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
  TODO   | Apply Barrel Distortion
