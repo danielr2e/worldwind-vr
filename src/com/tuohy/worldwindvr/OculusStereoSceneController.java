@@ -19,6 +19,7 @@ import javax.media.opengl.*;
 /**
  * TODO: This file needs to be updated to implement "correct" stereo, as described at:
  * http://www.orthostereo.com/geometryopengl.html
+ *  - May be the same as this: http://www.roadtovr.com/2013/04/25/vr-expert-to-oculus-rift-devs-make-sure-youre-doing-3d-right-5267
  * 
  * TODO: actually, stereoscopy is a trick proposition in WorldWind because of their weird
  * camera positioning system.  We need to get it working, period.
