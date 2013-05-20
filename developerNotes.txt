@@ -2,7 +2,7 @@
 Status  |         Description           
  DONE   | Display in Full Screen  
  DONE   | Use basic First Person view
- TODO   | Create project on GitHub
+ DONE   | Create project on GitHub
  TODO   | Create README targeted at users who just want to run the project in current state
  TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it
  TODO   | Remove HUD
@@ -10,7 +10,7 @@ Status  |         Description
  TODO   | SBS stereo rendering
  TODO   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
  TODO   | Apply Barrel Distortion
- TODO   | Java JNI wrapper for Rift DLL (JRift?)
+ TODO   | Java JNI wrapper for Rift DLL (JRift? Or http://www.softwarepioneering.com/2013/05/java-c-wrapper-for-oculus-rift.html)
  TODO   | Manipulate camera pitch/yaw/roll using data from Rift DLL
  TODO   | Intuitive mechanisms for interpreting keyboard/mouse input to navigate globe in First Person
  TODO   | Adaptive/Heuristic methods for adjusting interpupillary distance for greatest effect (without headaches) when navigating globe
@@ -18,6 +18,8 @@ Status  |         Description
  TODO   | Do something reasonable with vsync (unclear if that means turning on or off)
  TODO   | Devise build process that generates most convenient distribution for users
  TODO   | Update README, publish to various forums that project is ready for people to play with
+ TODO   | Implement 'correct' stereo, which requires more nuanced orientation of the cameras to really simulate human eyes (see http://www.orthostereo.com/geometryopengl.html)
+ TODO   | Create JNLP webstart deployment so demo can be easily launched from browser
  
 ================= Development ==================
 **** IDE ****

@@ -1,6 +1,7 @@
 package com.tuohy.worldwindvr;
 
 import gov.nasa.worldwind.BasicModel;
+import gov.nasa.worldwind.StereoOptionSceneController;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
@@ -29,42 +30,46 @@ public class FullScreenTest{
 
 
 	// the first-person view
-    public static BasicFlyView view;
+	public static BasicFlyView view;
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-            view = new BasicFlyView();
-            Frame frame = new Frame("WorldwindFull");
-            final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
-            worldWindowGLCanvas.setModel(new BasicModel());
-            worldWindowGLCanvas.setView(view);
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
 
-            worldWindowGLCanvas.addKeyListener(new java.awt.event.KeyListener() {
-                    public void keyTyped(KeyEvent e) {
-                    }
+		
+		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
 
-                    public void keyReleased(KeyEvent e) {
-                    }
+		view = new BasicFlyView();
+		Frame frame = new Frame("WorldwindFull");
+		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
+		worldWindowGLCanvas.setModel(new BasicModel());
+		worldWindowGLCanvas.setView(view);
 
-                    public void keyPressed(KeyEvent e) {
-                            if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                                    System.exit(0);
-                            }
-                    }
-            });
-            
-            frame.add(worldWindowGLCanvas);
-            frame.setSize(640, 480);
-            frame.setUndecorated(true);
-            int size = frame.getExtendedState();
-            size |= Frame.MAXIMIZED_BOTH;
-            frame.setExtendedState(size);
+		worldWindowGLCanvas.addKeyListener(new java.awt.event.KeyListener() {
+			public void keyTyped(KeyEvent e) {
+			}
 
-            frame.setVisible(true);
-            worldWindowGLCanvas.requestFocus();
-    }
+			public void keyReleased(KeyEvent e) {
+			}
+
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					System.exit(0);
+				}
+			}
+		});
+
+		frame.add(worldWindowGLCanvas);
+		frame.setSize(640, 480);
+		frame.setUndecorated(true);
+		int size = frame.getExtendedState();
+		size |= Frame.MAXIMIZED_BOTH;
+		frame.setExtendedState(size);
+
+		frame.setVisible(true);
+		worldWindowGLCanvas.requestFocus();
+	}
 
 
 }

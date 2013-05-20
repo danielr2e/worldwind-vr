@@ -27,7 +27,7 @@ public class Stereo extends ApplicationTemplate
         // Set the stereo.mode property to request stereo. Request red-blue anaglyph in this case. Can also request
         // "device" if the display device supports stereo directly. To prevent stereo, leave the property unset or set
         // it to an empty string.
-        System.setProperty("gov.nasa.worldwind.stereo.mode", "device");
+        System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
 
         // Configure the initial view parameters so that the balloons are immediately visible.
         Configuration.setValue(AVKey.INITIAL_LATITUDE, 46.7045);
