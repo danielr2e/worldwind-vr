@@ -3,6 +3,7 @@ Status  |         Description
  DONE   | Display in Full Screen  
  DONE   | Use basic First Person view
  DONE   | Create project on GitHub
+ TODO   | Implement basic keyboard/mouse controls so that you get a reasonable first-person controllable view
  TODO   | Create README targeted at users who just want to run the project in current state
  TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it
  TODO   | Remove HUD
@@ -27,6 +28,15 @@ WorldwindVR is being developed in Eclipse, which can be downloaded at http://www
 
 *** Version Control ****
 The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the EGit plug-in.
+
+*** Checking out project from Git and installing as Eclipse project ***
+(1) Copy the following to clipboard: https://github.com/danielr2e/worldwind-vr.git
+(2) Window -> Show View -> Other... -> Git -> Git Repositories
+(3) In the Git Repositories window, right click -> Paste Repository Path or URI
+(4) Enter your Git account credentials and check 'Store in Secure Store' -> Next -> Next -> Finish
+(5) File ->  New -> Java Project 
+(6) Create project with name worldwind-vr, which will automatically build a project using the Git directory.
+(7) Right click project -> Team -> Share Project -> Git -> Finish (this will actually connect it to Git)
 
 *** Checking out JRift ***
 (1) Copy the following to clipboard: https://github.com/38leinaD/JRift.git
