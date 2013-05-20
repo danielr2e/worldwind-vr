@@ -10,11 +10,11 @@ Status  |         Description
  TODO   | Display in Oculus Rift resolution 1280x800
  DONE   | SBS Mono rendering
  TODO   | SBS stereo rendering
+ TODO	| 'Fast' monoscopic rendering (rasterize only one eye with GPU, then copy pixels to other half)
  TODO   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
  TODO   | Apply Barrel Distortion
  TODO   | Java JNI wrapper for Rift DLL (JRift? Or http://www.softwarepioneering.com/2013/05/java-c-wrapper-for-oculus-rift.html)
  TODO   | Manipulate camera pitch/yaw/roll using data from Rift DLL
- TODO   | Intuitive mechanisms for interpreting keyboard/mouse input to navigate globe in First Person
  TODO   | Adaptive/Heuristic methods for adjusting interpupillary distance for greatest effect (without headaches) when navigating globe
  TODO   | Make sure everything works with 32-bit and 64-bit Java runtimes
  TODO   | Do something reasonable with vsync (unclear if that means turning on or off)
