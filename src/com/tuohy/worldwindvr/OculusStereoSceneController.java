@@ -19,24 +19,17 @@ import javax.media.opengl.*;
 /**
  * TODO: This file needs to be updated to implement "correct" stereo, as described at:
  * http://www.orthostereo.com/geometryopengl.html
- * <p/>
- * <p/>
- * This scene controller draws in stereo, either red-blue anaglyph or device supported if the display device provides
- * stereo directly. It can also draw without applying stereo. To select stereo, prior to calling this class' constructor
- * set the Java VM property <code>gov.nasa.worldwind.stereo.mode</code> to "device" for device supported stereo (if
- * provided by the device) or "redblue" for red-blue anaglyph stereo. If the property is not set or is any other value,
- * this class does not draw in stereo.
- * <p/>
- * The {@link WorldWindow} instance must support stereo in order to use device-supported stereo. A stereo
- * <code>WorldWindow</code> is selected by specifying the Java VM property described above prior to creating it. See
- * {@link gov.nasa.worldwind.awt.WorldWindowGLCanvas} for further details.
- * <p/>
- * Note: The logic and much of the code here was contributed by Xander Enzmann of Mitre Corporation.
  *
- * @author tag
- * @version $Id: StereoOptionSceneController.java 1171 2013-02-11 21:45:02Z dcollins $
+ * TODO: the eyes become very wonky with increasing pitch, we MUST adjust for this
+ * 
+ * TODO: need to apply barrel distortion
+ *
+ * A SceneController which renders WorldWind for the Oculus Rift (i.e. in Side-By-Side 3D with
+ * barrel distortion)
+ *
+ * @author dtuohy
  */
-public class CustomSbsStereoSceneController extends BasicSceneController implements StereoSceneController
+public class OculusStereoSceneController extends BasicSceneController implements StereoSceneController
 {
     /**
      * The default focus angle. May be specified in the World Wind configuration file as the
@@ -63,7 +56,7 @@ public class CustomSbsStereoSceneController extends BasicSceneController impleme
     protected boolean inStereo = false;
 
     /** Constructs an instance and initializes its stereo mode to */
-    public CustomSbsStereoSceneController()
+    public OculusStereoSceneController()
     {
         String stereo = System.getProperty(AVKey.STEREO_MODE);
 
@@ -145,19 +138,7 @@ public class CustomSbsStereoSceneController extends BasicSceneController impleme
             super.draw(dc);
             return;
         }
-
-        // Check if pitch is in correct range (50 - 90 degrees) for current stereo implementation to
-        // work correctly (temporary hack)
-        View dcView = dc.getView();
-        Boolean pitchInRange = (dcView.getPitch().compareTo(Angle.fromDegrees(50)) > 0
-            && dcView.getPitch().compareTo(Angle.POS90) < 0);
-
-        if (AVKey.STEREO_MODE_DEVICE.equals(this.stereoMode) && this.isHardwareStereo() && pitchInRange)
-            this.doDrawToStereoDevice(dc);
-        else if (AVKey.STEREO_MODE_RED_BLUE.equals(this.stereoMode) && pitchInRange)
-            this.doDrawStereoRedBlue(dc);
-        else // AVKey.STEREO_MODE_NONE
-            this.doDrawStereoNone(dc);
+        this.doDrawStereoOculus(dc);        
     }
 
     /**
@@ -183,105 +164,42 @@ public class CustomSbsStereoSceneController extends BasicSceneController impleme
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         super.draw(dc);
     }
-
+    
     /**
-     * Implement stereo using the red-blue anaglyph technique.
+     * Implement stereo using the SBS Oculus format.
      *
      * @param dc the current draw context.
      */
-    protected void doDrawStereoRedBlue(DrawContext dc)
+    protected void doDrawStereoOculus(DrawContext dc)
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         View dcView = dc.getView();
-
+        
+        int halfWindowWidth = (int)(dcView.getViewport().getFrame().getWidth()/2.0);
+        int windowHeight = (int)(dcView.getViewport().getFrame().getHeight());
+        
+        
         // Draw the left eye
-        if (this.isSwapEyes())
-        {
-            if (this.isHardwareStereo())
-                gl.glDrawBuffer(GL2.GL_BACK_RIGHT);
-            gl.glColorMask(false, true, true, true); // right eye in green/blue
-        }
-        else
-        {
-            if (this.isHardwareStereo())
-                gl.glDrawBuffer(GL2.GL_BACK_LEFT);
-            gl.glColorMask(true, false, false, true); // left eye in red only
-        }
-
-        if (this.isHardwareStereo())
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
+        gl.glViewport(0, 0, halfWindowWidth, windowHeight);
         super.draw(dc);
 
         // Move the view to the right eye
         Angle viewHeading = dcView.getHeading();
-        dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-        dcView.apply(dc);
+        
+        //TODO: for right now, we don't move the right-eye, and hence we're not really getting stereoscopy
+        //It appears that there are several challenges to address in order to get stereo working correctly
+        //in the Rift (or anywhere, for that matter).  My suspicion is that the trouble is caused by the
+        //camera being positioned in the spherical coordinate system, and this making it very hard to 
+        //offset the camera appropriately.  We either have to have math that accounts for that, or make
+        //our own custom rendering logic that positions the OpenGL camera precisely as we want
+//        dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
+//        dcView.apply(dc);
 
-        // Draw the right eye frame green and blue only
+        // Draw the right eye frame
         try
         {
             gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
-            if (this.isSwapEyes())
-            {
-                if (this.isHardwareStereo())
-                    gl.glDrawBuffer(GL2.GL_BACK_RIGHT);
-                gl.glColorMask(true, false, false, true); // right eye in red only
-            }
-            else
-            {
-                if (this.isHardwareStereo())
-                    gl.glDrawBuffer(GL2.GL_BACK_LEFT);
-                gl.glColorMask(false, true, true, true);  // right eye in green/blue
-            }
-
-            if (this.isHardwareStereo())
-                gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-            super.draw(dc);
-        }
-        finally
-        {
-            // Restore the original view heading
-            dcView.setHeading(viewHeading);
-            dcView.apply(dc);
-            gl.glColorMask(true, true, true, true);
-        }
-    }
-
-    /**
-     * Implement stereo using the stereo-enabled graphics device. The mode has an effect only if the display device
-     * implements stereo.
-     *
-     * @param dc the current draw context.
-     */
-    protected void doDrawToStereoDevice(DrawContext dc)
-    {
-        GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
-        View dcView = dc.getView();
-
-        // Draw the left eye
-        if (this.isSwapEyes())
-            gl.glDrawBuffer(GL2.GL_BACK_RIGHT);
-        else
-            gl.glDrawBuffer(GL2.GL_BACK_LEFT);
-
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        super.draw(dc);
-
-        // Move the view to the right eye
-        Angle viewHeading = dcView.getHeading();
-        dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-        dcView.apply(dc);
-
-        // Draw the right eye
-        try
-        {
-            if (this.isSwapEyes())
-                gl.glDrawBuffer(GL2.GL_BACK_LEFT);
-            else
-                gl.glDrawBuffer(GL2.GL_BACK_RIGHT);
-
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            gl.glViewport(halfWindowWidth, 0, halfWindowWidth, windowHeight);
             super.draw(dc);
         }
         finally
@@ -291,4 +209,5 @@ public class CustomSbsStereoSceneController extends BasicSceneController impleme
             dcView.apply(dc);
         }
     }
+    
 }

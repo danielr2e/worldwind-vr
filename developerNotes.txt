@@ -49,6 +49,8 @@ The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the 
 ================= Other Notes ================
 
 This may provide info on how to render SBS 3D:
+ - probably just need to change the viewport before rendering each eye!! http://www.felixgers.de/teaching/jogl/viewport.html
+ - will also need to fix whatever is causing stereo to only render if pitch is between 50 and 90 degrees
  - http://fivedots.coe.psu.ac.th/~ad/jg2/jogl4/index.html
  - combine with technique for moving view and rendering both as in StereoOptionSceneController.doDrawToStereoDevice(DrawContext dc)
  - http://stackoverflow.com/questions/5002254/adapt-existing-code-for-opengl-stereoscopic-rendering
