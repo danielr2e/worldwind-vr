@@ -5,6 +5,7 @@ import gov.nasa.worldwind.StereoOptionSceneController;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.Offset;
@@ -37,6 +38,7 @@ public class FullScreenTest{
 	 */
 	public static void main(String[] args) {
 
+		StereoOptionSceneController c;
 		
 		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
 
@@ -69,6 +71,18 @@ public class FullScreenTest{
 
 		frame.setVisible(true);
 		worldWindowGLCanvas.requestFocus();
+		
+		//set up a reasonable initial camera orientation and globe location.
+
+        // Set view heading, pitch and fov
+        view.setHeading(Angle.fromDegrees(0));
+        view.setPitch(Angle.fromDegrees(90));
+        view.setFieldOfView(Angle.fromDegrees(45));
+        view.setRoll(Angle.fromDegrees(0));
+        //view.setZoom(0);
+
+        Position pos = new Position(new LatLon(Angle.fromDegrees(45), Angle.fromDegrees(-120)), 2000);
+        view.setEyePosition(pos);
 	}
 
 
