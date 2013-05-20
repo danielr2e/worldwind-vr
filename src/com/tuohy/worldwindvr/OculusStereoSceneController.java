@@ -19,6 +19,9 @@ import javax.media.opengl.*;
 /**
  * TODO: This file needs to be updated to implement "correct" stereo, as described at:
  * http://www.orthostereo.com/geometryopengl.html
+ * 
+ * TODO: actually, stereoscopy is a trick proposition in WorldWind because of their weird
+ * camera positioning system.  We need to get it working, period.
  *
  * TODO: the eyes become very wonky with increasing pitch, we MUST adjust for this
  * 
