@@ -25,9 +25,7 @@ import java.util.TimerTask;
 
 
 /**
- * A test class used during early experiments with implementing Oculus Rift VR
- * support in WorldWind.
- * 
+ * Launcher for the Rift-Compatible Worldwind Virtual Reality application.
  * 
  * @author dtuohy
  *
