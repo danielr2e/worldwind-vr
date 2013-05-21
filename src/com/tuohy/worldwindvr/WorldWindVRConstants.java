@@ -8,6 +8,5 @@ package com.tuohy.worldwindvr;
  */
 public class WorldWindVRConstants {
 
-	public static final String STEREO_MODE_OCULUS = "oculus";
 	
 }

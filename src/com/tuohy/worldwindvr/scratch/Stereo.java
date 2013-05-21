@@ -3,7 +3,7 @@
  * National Aeronautics and Space Administration.
  * All Rights Reserved.
  */
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.scratch;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;

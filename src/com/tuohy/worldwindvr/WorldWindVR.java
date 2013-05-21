@@ -32,7 +32,7 @@ import java.util.TimerTask;
  * @author dtuohy
  *
  */
-public class FullScreenTest{
+public class WorldWindVR{
 
 
 	// the first-person view
@@ -55,7 +55,7 @@ public class FullScreenTest{
 		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
 //		worldWindowGLCanvas.setSceneController(new CustomSbsStereoSceneController());
 		worldWindowGLCanvas.setModel(new BasicModel());
-		worldWindowGLCanvas.setView(view);
+//		worldWindowGLCanvas.setView(view);
 //		view.setViewInputHandler(new FlyViewInputHandler());
 
 		worldWindowGLCanvas.addKeyListener(new java.awt.event.KeyListener() {
