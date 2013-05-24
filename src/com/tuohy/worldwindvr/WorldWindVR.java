@@ -51,7 +51,6 @@ public class WorldWindVR{
 		
 		Frame frame = new Frame("WorldwindFull");
 		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
-//		worldWindowGLCanvas.setSceneController(new CustomSbsStereoSceneController());
 		worldWindowGLCanvas.setModel(new BasicModel());
 		worldWindowGLCanvas.setView(view);
 //		view.setViewInputHandler(new FlyViewInputHandler());
