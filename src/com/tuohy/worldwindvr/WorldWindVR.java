@@ -34,7 +34,7 @@ public class WorldWindVR{
 
 
 	// the first-person view
-	public static BasicFlyView view;
+	public static VRFlyView view;
 
 	/**
 	 * @param args
@@ -46,14 +46,14 @@ public class WorldWindVR{
 //		System.setProperty("gov.nasa.worldwind.stereo.mode", "device");
 		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
 		
-		view = new BasicFlyView();
+		view = new VRFlyView();
 		
 		
 		Frame frame = new Frame("WorldwindFull");
 		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
 //		worldWindowGLCanvas.setSceneController(new CustomSbsStereoSceneController());
 		worldWindowGLCanvas.setModel(new BasicModel());
-//		worldWindowGLCanvas.setView(view);
+		worldWindowGLCanvas.setView(view);
 //		view.setViewInputHandler(new FlyViewInputHandler());
 
 		worldWindowGLCanvas.addKeyListener(new java.awt.event.KeyListener() {
