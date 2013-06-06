@@ -6,6 +6,7 @@
 
 package com.tuohy.worldwindvr;
 
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 import gov.nasa.worldwind.BasicSceneController;
@@ -45,6 +46,11 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * 1.6 degrees.
 	 */
 	protected static final double DEFAULT_FOCUS_ANGLE = Configuration.getDoubleValue(AVKey.STEREO_FOCUS_ANGLE, 1.6);
+	
+	/**
+	 * This is the FOV appropriate for the Oculus Rift.
+	 */
+	protected static final double DEFAULT_FOV = 110.0;
 
 	/** The current stereo mode. May not be set to null; use {@link AVKey#STEREO_MODE_NONE} instead. */
 	protected String stereoMode = AVKey.STEREO_MODE_NONE;
@@ -187,14 +193,20 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	{
 		GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 		View dcView = dc.getView();
-
+		
+		//set the FOV appropriate for the rift
+		dcView.setFieldOfView(Angle.fromDegrees(110));
+		
 		int x = 0;
 		int y = 0;
-		int w = (int)(dcView.getViewport().getFrame().getWidth()/2.0);
+		int w = (int)(dcView.getViewport().getFrame().getWidth());
 		int h = (int)(dcView.getViewport().getFrame().getHeight());
-
 		// Draw the left eye
 		gl.glViewport(x, y, w, h);
+		
+//		gl.glBindFramebuffer(arg0, arg1)
+		
+		
 		super.draw(dc);
 
 		//TODO: adapted from Distortion Correction.  It seems like I have this all wrong, in terms of when the shader should be applied
