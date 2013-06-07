@@ -76,7 +76,8 @@ public class VRFlyView extends BasicFlyView {
         //MODIFIED for Oculus by DRT 6/5/2013: here we divide the view port width by half because we are only
         //rendering to half of the screen
         this.viewport = new java.awt.Rectangle(viewportArray[0], viewportArray[1], viewportArray[2]/2, viewportArray[3]);
-
+//        System.out.println("viewport is " + viewport);
+        
         // Compute the current clip plane distances.
         this.nearClipDistance = this.computeNearClipDistance();
         this.farClipDistance = this.computeFarClipDistance();

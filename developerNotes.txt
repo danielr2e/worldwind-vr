@@ -3,8 +3,8 @@ Status  |         Description
  DONE   | Display in Full Screen  
  DONE   | Use basic First Person view
  DONE   | Create project on GitHub
- TODO	| Eliminate distortion resulting from changing viewport aspect ratio
- TODO   | Implement 110 degree field of view
+ DONE	| Eliminate distortion resulting from changing viewport aspect ratio
+ DONE   | Implement 110 degree field of view
  TODO   | Implement basic keyboard/mouse controls so that you get a reasonable first-person controllable view
  TODO   | Create README targeted at users who just want to run the project in current state
  TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it
