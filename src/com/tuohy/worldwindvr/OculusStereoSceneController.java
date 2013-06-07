@@ -1,5 +1,8 @@
 package com.tuohy.worldwindvr;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
 import gov.nasa.worldwind.BasicSceneController;
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.StereoSceneController;
@@ -10,24 +13,18 @@ import gov.nasa.worldwind.render.DrawContext;
 
 import javax.media.opengl.*;
 
+import com.jogamp.newt.Display;
+
 import static javax.media.opengl.GL2.*;
 
 /**
  * TODO: This file needs to be updated to implement "correct" stereo, as described at:
  * http://www.orthostereo.com/geometryopengl.html
  *  - May be the same as this: http://www.roadtovr.com/2013/04/25/vr-expert-to-oculus-rift-devs-make-sure-youre-doing-3d-right-5267
- * 
- * TODO: actually, stereoscopy is a trick proposition in WorldWind because of their weird
- * camera positioning system.
- *
- * TODO: the eyes become very wonky with increasing pitch, we MUST adjust for this
- * 
- * TODO: need to apply barrel distortion
- *  - http://jmonkeyengine.org/forum/topic/oculus-rift-support/
- *  - https://developer.oculusvr.com/forums/viewtopic.php?f=20&t=88&p=1021&hilit=opengl#p1021
  *
  * A SceneController which renders WorldWind for the Oculus Rift (i.e. in Side-By-Side 3D with
- * barrel distortion)
+ * barrel distortion).  TODO: Stereoscopic 3D is currently not working, due to nuances of the
+ * WorldWind scene controller.
  *
  * Note that shaders and bits of the rendering were adapted from 38LeinaD's LWJGL
  * example posted on the OculurVR.com forums on April 01, 2013: 
@@ -83,6 +80,10 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	private int ScaleLocation;
 	private int ScaleInLocation;
 	private int HmdWarpParamLocation;
+	public static float K0 = 1.0f;
+	public static float K1 = 0.22f;
+	public static float K2 = 0.24f;
+	public static float K3 = 0.0f;
 
 	//used for FBO, to which the scene is rendered before distortion
 	protected int colorTextureID = -1;
@@ -200,11 +201,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		super.draw(dc);
 	}
 
-	public static float K0 = 1.0f;
-	public static float K1 = 0.22f;
-	public static float K2 = 0.24f;
-	public static float K3 = 0.0f;
-
 	/**
 	 * Implement stereo using the SBS Oculus format.
 	 *
@@ -227,7 +223,10 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			this.initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
 			//TODO: HARD CODED, but need to grab this from the display.  This FBO will be
 			//the render target before the screen, to which we will apply the shaders
-			this.initFBO(gl,1920,1080);
+			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+			int width = gd.getDisplayMode().getWidth();
+			int height = gd.getDisplayMode().getHeight();
+			this.initFBO(gl,width,height);
 			LensCenterLocation = gl.glGetUniformLocation(shader, "LensCenter");
 			ScreenCenterLocation = gl.glGetUniformLocation(shader, "ScreenCenter");
 			ScaleLocation = gl.glGetUniformLocation(shader, "Scale");
@@ -255,8 +254,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		Angle viewHeading = dcView.getHeading();
 		//TODO: applying the new heading appears to screw things up, stretches out the view?
 		//need to fix this or no stereoscopy
-		//		dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-		//		dcView.apply(dc);
+//		dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
+//		dcView.apply(dc);
 		try{
 			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
 			gl.glViewport(w, 0, w, h);
@@ -364,16 +363,18 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glTexCoord2f(1.0f, 1.0f);   gl.glVertex2f(1.0f, 1.0f);
 			gl.glEnd();            
 		}
-
 	}
 
+	/**
+	 * Initializes the FrameBufferObject into which the SBS scene will initially
+	 * be rendered before being applied to the screen with distortion.
+	 * 
+	 * @param gl
+	 * @param screenWidth
+	 * @param screenHeight
+	 */
 	private void initFBO(GL2 gl, int screenWidth, int screenHeight) {
-		//ORIGINAL from the lwjgl example
-		//        framebufferID = glGenFramebuffers();                                                                                
-		//        colorTextureID = glGenTextures();                                                                                               
-		//        depthRenderBufferID = glGenRenderbuffers();       
 
-		//REPLACEMENT from the jogl example (https://github.com/demoscenepassivist/SocialCoding/blob/master/code_demos_jogamp/src/framework/base/BaseFrameBufferObjectRendererExecutor.java)
 		int[] result = new int[1];
 		gl.glGenFramebuffers(1, result, 0);
 		framebufferID = result[0];
@@ -434,7 +435,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			System.out.println("No shaders");
 			System.exit(0);
 		}
-		//        Util.checkGLError();
 	}
 
 	private int createVertShader(GL2 gl, String vertexCode){
@@ -444,8 +444,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			return 0;
 		}
 
-
-		//        gl.glShaderSource(vertShader, vertexCode);
 		gl.glShaderSource(vertShader, 1, new String[] { vertexCode }, new int[]{vertexCode.length()}, 0);
 		gl.glCompileShader(vertShader);
 
@@ -463,7 +461,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		if (fragShader==0) {
 			return 0;
 		}
-		//        gl.glShaderSource(fragShader, fragCode);
+		
 		gl.glShaderSource(fragShader, 1, new String[] { fragCode }, new int[]{fragCode.length()}, 0);
 		gl.glCompileShader(fragShader);
 
