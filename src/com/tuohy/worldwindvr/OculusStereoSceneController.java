@@ -220,13 +220,15 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		//initialize the frame buffer, into which we will render the view
 		if(framebufferID<0){
-			this.initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
-			//TODO: HARD CODED, but need to grab this from the display.  This FBO will be
-			//the render target before the screen, to which we will apply the shaders
+			
+			//creates the Frame Buffer Object into which the initial undistorted SBS scene is rendered off screen
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 			int width = gd.getDisplayMode().getWidth();
 			int height = gd.getDisplayMode().getHeight();
 			this.initFBO(gl,width,height);
+			
+			//creates the shaders used for barrel distortion
+			initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
 			LensCenterLocation = gl.glGetUniformLocation(shader, "LensCenter");
 			ScreenCenterLocation = gl.glGetUniformLocation(shader, "ScreenCenter");
 			ScaleLocation = gl.glGetUniformLocation(shader, "Scale");
