@@ -1,13 +1,4 @@
-/*
- * Copyright (C) 2012 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration.
- * All Rights Reserved.
- */
-
 package com.tuohy.worldwindvr;
-
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 
 import gov.nasa.worldwind.BasicSceneController;
 import gov.nasa.worldwind.Configuration;
@@ -18,11 +9,6 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.render.DrawContext;
 
 import javax.media.opengl.*;
-import javax.media.opengl.glu.*;
-import com.jogamp.common.nio.*;
-import com.jogamp.newt.Display;
-import com.jogamp.opengl.util.gl2.*;
-import com.tuohy.worldwindvr.scratch.DistortionCorrection.Eye;
 
 import static javax.media.opengl.GL2.*;
 
@@ -60,6 +46,11 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	protected static final double DEFAULT_FOCUS_ANGLE = Configuration.getDoubleValue(AVKey.STEREO_FOCUS_ANGLE, 1.6);
 
 	/**
+	 * Whether or not to apply barrel distortion, which inverts the Rift's pincushion distortion.
+	 */
+	private static final boolean USE_BARREL_DISTORTION_SHADER = true;
+
+	/**
 	 * This is the FOV appropriate for the Oculus Rift.
 	 */
 	protected static final double DEFAULT_FOV = 110.0;
@@ -80,7 +71,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * avoids the overhead of more complicated logic that determines the stereo-drawing implementation to call.
 	 */
 	protected boolean inStereo = false;
-
 
 	//shaders for applying barrel distortion (which is inverted by the rift's optics)
 	protected int shader=0;
@@ -234,7 +224,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		//initialize the frame buffer, into which we will render the view
 		if(framebufferID<0){
-			this.initShaders(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+			this.initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
 			//TODO: HARD CODED, but need to grab this from the display.  This FBO will be
 			//the render target before the screen, to which we will apply the shaders
 			this.initFBO(gl,1920,1080);
@@ -266,9 +256,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//TODO: applying the new heading appears to screw things up, stretches out the view?
 		//need to fix this or no stereoscopy
 		//		dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-		//		System.out.println("applying!");
 		//		dcView.apply(dc);
 		try{
+			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
 			gl.glViewport(w, 0, w, h);
 			super.draw(dc);
 		}
@@ -284,54 +274,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		gl.glPopAttrib();
 
-		//attempt to render FBO to screen        	
-		//left eye
-		renderHalfScreenTexturedQuad(gl, this.colorTextureID, 0,0, w, h, true);
+		/** render FBO texture to screen with barrel distortion */
 
-		//right eye
-		renderHalfScreenTexturedQuad(gl, this.colorTextureID, 0,0, w, h, false);
-
-		
-		// Move the view to the right eye
-		//		Angle viewHeading = dcView.getHeading();
-
-		//TODO: for right now, we don't move the right-eye, and hence we're not really getting stereoscopy
-		//It appears that there are several challenges to address in order to get stereo working correctly
-		//in the Rift (or anywhere, for that matter).  My suspicion is that the trouble is caused by the
-		//camera being positioned in the spherical coordinate system, and this making it very hard to 
-		//offset the camera appropriately.  We either have to have math that accounts for that, or make
-		//our own custom rendering logic that positions the OpenGL camera precisely as we want
-		//		dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-		//		dcView.apply(dc);
-
-		//TO DELETE: This is the original code used to render into the window frame
-
-		// Draw the right eye frame
-		//		try
-		//		{
-		//			x=w;
-		//			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
-		//			gl.glViewport(w, 0, w, h);
-		//			super.draw(dc);
-		//		}
-		//		finally
-		//		{
-		//			// Restore the original view heading
-		//			dcView.setHeading(viewHeading);
-		//			dcView.apply(dc);
-		//		}
-	}
-
-	/**
-	 * Renders the texture with the given textureId to half of the screen, with
-	 * a boolean indicating whether that half should be the left or right.
-	 * 
-	 * @param gl
-	 * @param textureId
-	 * @param left
-	 */
-	public void renderHalfScreenTexturedQuad(GL2 gl, int textureId,int x, int y, int w, int h, boolean left)
-	{
 		gl.glMatrixMode(GL_MODELVIEW);
 		gl.glPushMatrix();
 		gl.glLoadIdentity();
@@ -340,76 +284,87 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		gl.glLoadIdentity();
 		gl.glPushAttrib(GL_ENABLE_BIT);
 
+		if(USE_BARREL_DISTORTION_SHADER){
+			gl.glUseProgram(shader);
+		}
+		gl.glEnable(GL.GL_TEXTURE_2D);
+		gl.glDisable(GL_DEPTH_TEST);
+		gl.glActiveTexture(GL.GL_TEXTURE0);
+
+		//	        gl.glClearColor (1.0f, 0.0f, 0.0f, 0.5f);
+		//	        gl.glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		gl.glBindTexture(GL.GL_TEXTURE_2D, colorTextureID);
+
 		try
 		{
-//			gl.glUseProgram(shader);
-			gl.glEnable(GL.GL_TEXTURE_2D);
-			gl.glDisable(GL_DEPTH_TEST);
-			gl.glActiveTexture(GL.GL_TEXTURE0);
-			gl.glBindTexture(GL.GL_TEXTURE_2D, textureId);
+			//left eye
+			renderHalfScreenTexturedQuad(gl, 0.0f, 0.0f, 0.5f, 1.0f, true);
 
-			//TODO: adapted from Distortion Correction.  It seems like I have this all wrong, in terms of when the shader should be applied
-			//This message on WW forums: http://forum.worldwindcentral.com/showthread.php?t=32175&highlight=shader
-			// suggests that I should probably be rendering each eye to a TEXTURE (FBO), and then applying the shader to
-			//that whole texture, THEN rendering that texture to the screen.  This actually seems to be exactly what DistortionCorrection
-			// is doing so maybe I can just borrow more from that?
-			//
-			// AND maybe I don't have to even write the shader in JOGL!  Can I just load the OpenGL shader from this Git project?
-			//  https://github.com/dghost/glslRiftDistort
-			float as = w/h;
+			//right eye
+			renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
 
-			float scaleFactor = 1.0f;
-
-//			this.validate();
-//			Util.checkGLError();
-
-			float DistortionXCenterOffset;
-			if (left) {
-				DistortionXCenterOffset = 0.25f;
-			}
-			else {
-				DistortionXCenterOffset = -0.25f;
-			}
-
-			gl.glUniform2f(LensCenterLocation, x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
-			gl.glUniform2f(ScreenCenterLocation, x + w*0.5f, y + h*0.5f);
-			gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * as);;
-			gl.glUniform2f(ScaleInLocation, (2.0f/w), (2.0f/h) / as);
-			gl.glUniform4f(HmdWarpParamLocation, K0, K1, K2, K3);
-
-//			System.out.println("ScaleLocation: " + ScaleLocation);
-			
-			//this actually renders the texture from the FBO into the screen
-			if(left){
-				gl.glBegin(GL_TRIANGLE_STRIP);
-				gl.glTexCoord2f(0.0f, 0.0f);   gl.glVertex2f(-1.0f, -1.0f);
-				gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
-				gl.glTexCoord2f(0.0f, 1.0f);   gl.glVertex2f(-1.0f, 1.0f);
-				gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
-				gl.glEnd();
-			}
-			else{
-				gl.glBegin(GL_TRIANGLE_STRIP);
-				gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
-				gl.glTexCoord2f(1.0f, 0.0f);   gl.glVertex2f(1.0f, -1.0f);
-				gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
-				gl.glTexCoord2f(1.0f, 1.0f);   gl.glVertex2f(1.0f, 1.0f);
-				gl.glEnd();            
-
-			}
 		}
 		finally
 		{
-//			gl.glUseProgram(0);
-	        gl.glEnable(GL_DEPTH_TEST);
-			
+			if(USE_BARREL_DISTORTION_SHADER){
+				gl.glUseProgram(0);
+			}
+			gl.glEnable(GL_DEPTH_TEST);
 			gl.glPopMatrix();
 			gl.glMatrixMode(GL_MODELVIEW);
 			gl.glPopMatrix();
 			gl.glPopAttrib();
-			
-			
 		}
+
+	}
+
+	/**
+	 * Renders the currently bound texture to half of the screen, with
+	 * a boolean indicating whether that half should be the left or right.
+	 * 
+	 * @param gl
+	 * @param textureId
+	 * @param left
+	 */
+	public void renderHalfScreenTexturedQuad(GL2 gl, float x, float y, float w, float h, boolean left)
+	{
+
+		//compute the parameters for barrel distortion shader
+		float as = w/h;
+		//smaller scaleFactor = bigger 
+		float scaleFactor = 1.0f;
+		float DistortionXCenterOffset;
+		if (left) {
+			DistortionXCenterOffset = 0.25f;
+		}
+		else {
+			DistortionXCenterOffset = -0.25f;
+		}
+		gl.glUniform2f(LensCenterLocation, x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
+		gl.glUniform2f(ScreenCenterLocation, x + w*0.5f, y + h*0.5f);
+		gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * as);;
+		gl.glUniform2f(ScaleInLocation, (2.0f/w), (2.0f/h) / as);
+		gl.glUniform4f(HmdWarpParamLocation, K0, K1, K2, K3);
+
+		//this actually renders the texture from the FBO into the screen
+		if(left){
+			gl.glBegin(GL_TRIANGLE_STRIP);
+			gl.glTexCoord2f(0.0f, 0.0f);   gl.glVertex2f(-1.0f, -1.0f);
+			gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
+			gl.glTexCoord2f(0.0f, 1.0f);   gl.glVertex2f(-1.0f, 1.0f);
+			gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
+			gl.glEnd();
+		}
+		else{
+			gl.glBegin(GL_TRIANGLE_STRIP);
+			gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
+			gl.glTexCoord2f(1.0f, 0.0f);   gl.glVertex2f(1.0f, -1.0f);
+			gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
+			gl.glTexCoord2f(1.0f, 1.0f);   gl.glVertex2f(1.0f, 1.0f);
+			gl.glEnd();            
+		}
+
 	}
 
 	private void initFBO(GL2 gl, int screenWidth, int screenHeight) {
@@ -426,9 +381,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//allocate the colour texture ...
 		gl.glGenTextures(1, result, 0);
 		colorTextureID = result[0];
-		//allocate render buffer? This code is my guess, was not in original example	
-		//		gl.glGenRenderbuffers(1, result, 0);
-		//		depthRenderBufferID = result[0];
+		//allocate render buffer
 		gl.glGenRenderbuffers(1, result,0);
 		depthRenderBufferID = result[0];
 
@@ -462,17 +415,20 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glAttachShader(shader, fragShader);
 
 			gl.glLinkProgram(shader);
-			//            if (glGetProgram(shader, GL_LINK_STATUS) == GL_FALSE) {
-			//                System.out.println("Linkage error");
-			//                printLogInfo(shader);
-			//                System.exit(0);
-			//            }
-
-			gl.glValidateProgram(shader);
-			//            if (gl.glGetProgram(shader, GL_VALIDATE_STATUS) == GL_FALSE) {
-			//                printLogInfo(shader);
-			//                System.exit(0);
-			//            }
+			int[] status = new int[1];
+			gl.glGetObjectParameterivARB(shader, GL2.GL_LINK_STATUS, status, 0);
+			if (GL.GL_FALSE == status[0]) {
+				System.err.println("Error during link!");
+			} else {
+				gl.glValidateProgram(shader);
+				gl.glGetObjectParameterivARB(shader, GL2.GL_VALIDATE_STATUS, status, 0);
+				if (GL.GL_FALSE == status[0]) {
+					System.err.println("error during validate!");
+				}
+				else{
+					System.out.println("Shaders loaded");
+				}
+			}
 
 		} else {
 			System.out.println("No shaders");
@@ -490,13 +446,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 
 		//        gl.glShaderSource(vertShader, vertexCode);
-		gl.glShaderSource(vertShader, 1, new String[] { vertexCode }, (int[]) null, 0);
+		gl.glShaderSource(vertShader, 1, new String[] { vertexCode }, new int[]{vertexCode.length()}, 0);
 		gl.glCompileShader(vertShader);
 
-		//        if (glGetShader(vertShader, GL_COMPILE_STATUS) == GL_FALSE) {
-		//            printLogInfo(vertShader);
-		//            vertShader=0;
-		//        }
+		int[] status = new int[1];
+		gl.glGetObjectParameterivARB(vertShader, GL2.GL_COMPILE_STATUS, status, 0);
+		if (GL.GL_FALSE == status[0]) {
+			System.err.println("Error during compile of vertShader!");
+		}
 		return vertShader;
 	}
 
@@ -507,47 +464,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			return 0;
 		}
 		//        gl.glShaderSource(fragShader, fragCode);
-		gl.glShaderSource(fragShader, 1, new String[] { fragCode }, (int[]) null, 0);
+		gl.glShaderSource(fragShader, 1, new String[] { fragCode }, new int[]{fragCode.length()}, 0);
 		gl.glCompileShader(fragShader);
-		//        if (glGetShader(fragShader, GL_COMPILE_STATUS) == GL_FALSE) {
-		//            printLogInfo(fragShader);
-		//            fragShader=0;
-		//        }
+
+		int[] status = new int[1];
+		gl.glGetObjectParameterivARB(fragShader, GL2.GL_COMPILE_STATUS, status, 0);
+		if (GL.GL_FALSE == status[0]) {
+			System.err.println("Error during compile of fragShader!");
+		}
 		return fragShader;
 	}
-
-	private final static String VERTEX_SHADER_SOURCE = 
-			"void main() {\n" +
-					"   gl_TexCoord[0] = gl_MultiTexCoord0;\n" +
-					"   gl_Position = gl_Vertex;\n" +
-					"}";
-
-	private final static String FRAGMENT_SHADER_SOURCE = 
-			"uniform sampler2D tex;\n" +
-					"uniform vec2 LensCenter;\n" +
-					"uniform vec2 ScreenCenter;\n" +
-					"uniform vec2 Scale;\n" +
-					"uniform vec2 ScaleIn;\n" +
-					"uniform vec4 HmdWarpParam;\n" +
-					"\n" + 
-					"vec2 HmdWarp(vec2 texIn)\n" + 
-					"{\n" + 
-					"   vec2 theta = (texIn - LensCenter) * ScaleIn;\n" +
-					"   float  rSq= theta.x * theta.x + theta.y * theta.y;\n" +
-					"   vec2 theta1 = theta * (HmdWarpParam.x + HmdWarpParam.y * rSq + " +
-					"           HmdWarpParam.z * rSq * rSq + HmdWarpParam.w * rSq * rSq * rSq);\n" +
-					"   return LensCenter + Scale * theta1;\n" +
-					"}\n" +
-					"\n" +
-					"\n" +
-					"\n" + 
-					"void main()\n" +
-					"{\n" +
-					"   vec2 tc = HmdWarp(gl_TexCoord[0]);\n" +
-					"   if (any(notEqual(clamp(tc, ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25, 0.5)) - tc, vec2(0.0, 0.0))))\n" +
-					"       gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n" +
-					"   else\n" +
-					"       gl_FragColor = texture2D(tex, tc);\n" +
-					"}";
-
 }
