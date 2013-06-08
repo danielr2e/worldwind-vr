@@ -44,7 +44,7 @@ public class WorldWindVR{
 		AWTInputHandler hand;
 		
 		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.OculusStereoSceneController");
-//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneController","gov.nasa.worldwind.StereoOptionSceneController");
+//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.StereoOptionSceneControllerTest");
 //		System.setProperty("gov.nasa.worldwind.stereo.mode", "device");
 		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
 		

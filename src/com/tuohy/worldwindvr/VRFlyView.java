@@ -18,6 +18,10 @@ import gov.nasa.worldwind.view.firstperson.FlyViewLimits;
  */
 public class VRFlyView extends BasicFlyView {
 
+	//used to force the viewport to the correct dimensions based on the display height/width
+	int hardCodedHeight = -1;
+	int hardCodedWidth = -1;
+	
 	public VRFlyView(){
         this.viewInputHandler = new VRFlyViewInputHandler();
 
@@ -75,7 +79,7 @@ public class VRFlyView extends BasicFlyView {
         
         //MODIFIED for Oculus by DRT 6/5/2013: here we divide the view port width by half because we are only
         //rendering to half of the screen
-        this.viewport = new java.awt.Rectangle(viewportArray[0], viewportArray[1], viewportArray[2]/2, viewportArray[3]);
+        this.viewport = new java.awt.Rectangle(viewportArray[0], viewportArray[1], hardCodedWidth/2, hardCodedHeight);
 //        System.out.println("viewport is " + viewport);
         
         // Compute the current clip plane distances.
@@ -101,5 +105,20 @@ public class VRFlyView extends BasicFlyView {
         afterDoApply();
         
     }
+
+    /**
+     * This method should be called when the primary display dimensions have been determined and
+     * will be used to ensure the correct viewport dimensions at all times.
+     * 
+     * We hard code the display height/width because we were seeing strange behavior when allowing
+     * WorldWind to recompute the viewport after offsetting the right eye.
+     * 
+     * @param width
+     * @param height
+     */
+	public void hardCodeViewPortHeightAndWidth(int width, int height) {
+		this.hardCodedWidth = width;
+		this.hardCodedHeight = height;
+	}
 	
 }

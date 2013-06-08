@@ -51,6 +51,13 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * This is the FOV appropriate for the Oculus Rift.
 	 */
 	protected static final double DEFAULT_FOV = 110.0;
+	
+	/**
+	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
+	 * effect. This field is included because the question is asked every frame, and tracking the answer via a boolean
+	 * avoids the overhead of more complicated logic that determines the stereo-drawing implementation to call.
+	 */
+	protected boolean inStereo = false;
 
 	/** The current stereo mode. May not be set to null; use {@link AVKey#STEREO_MODE_NONE} instead. */
 	protected String stereoMode = AVKey.STEREO_MODE_NONE;
@@ -62,12 +69,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	protected GLCapabilitiesImmutable capabilities;
 	/** Indicates whether hardware device stereo is available. Valid only after this scene controller draws once. */
 	protected boolean hardwareStereo = false;
-	/**
-	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
-	 * effect. This field is included because the question is asked every frame, and tracking the answer via a boolean
-	 * avoids the overhead of more complicated logic that determines the stereo-drawing implementation to call.
-	 */
-	protected boolean inStereo = false;
 
 	//shaders for applying barrel distortion (which is inverted by the rift's optics)
 	protected int shader=0;
@@ -218,15 +219,16 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		int w = (int)(dcView.getViewport().getFrame().getWidth());
 		int h = (int)(dcView.getViewport().getFrame().getHeight());
 
-		//initialize the frame buffer, into which we will render the view
+		//initialize the frame buffer, into which we will render the view, and the barrel distortion shaders
 		if(framebufferID<0){
-			
+
 			//creates the Frame Buffer Object into which the initial undistorted SBS scene is rendered off screen
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 			int width = gd.getDisplayMode().getWidth();
 			int height = gd.getDisplayMode().getHeight();
-			this.initFBO(gl,width,height);
 			
+			this.initFBO(gl,width,height);
+
 			//creates the shaders used for barrel distortion
 			initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
 			LensCenterLocation = gl.glGetUniformLocation(shader, "LensCenter");
@@ -234,6 +236,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			ScaleLocation = gl.glGetUniformLocation(shader, "Scale");
 			ScaleInLocation = gl.glGetUniformLocation(shader, "ScaleIn");
 			HmdWarpParamLocation = gl.glGetUniformLocation(shader, "HmdWarpParam");
+			
+			//hard code the viewport height and width (see method comment for reason why)
+			((VRFlyView) dcView).hardCodeViewPortHeightAndWidth(width,height);
 		}
 
 		// Draw the left eye into the frame buffer
@@ -252,12 +257,15 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		super.draw(dc);
 
 		//right eye
-		// Move the view to the right eye
+		// Move the view to the right eye, if we are doing true stereoscopy
 		Angle viewHeading = dcView.getHeading();
-		//TODO: applying the new heading appears to screw things up, stretches out the view?
-		//need to fix this or no stereoscopy
-//		dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-//		dcView.apply(dc);
+		if(this.inStereo){
+			//TODO: for some reason, whenever the camera orientation changes, when the
+			//change stops the left view briefly 'clicks' as the view mysteriously applies
+			//one last unexpected change.  This MUST be fixed.
+			dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
+			dcView.apply(dc);
+		}
 		try{
 			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
 			gl.glViewport(w, 0, w, h);
@@ -317,7 +325,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glPopMatrix();
 			gl.glPopAttrib();
 		}
-
 	}
 
 	/**
@@ -334,7 +341,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//compute the parameters for barrel distortion shader
 		float as = w/h;
 		//smaller scaleFactor = bigger 
-		float scaleFactor = 1.0f;
+		float scaleFactor = 0.8f;
 		float DistortionXCenterOffset;
 		if (left) {
 			DistortionXCenterOffset = 0.25f;
@@ -402,10 +409,16 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT24, screenWidth, screenHeight);
 		gl.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER,GL.GL_DEPTH_ATTACHMENT,GL.GL_RENDERBUFFER, depthRenderBufferID); 
 
-		//set up done, rebind to the normal window buffer?
+		//set up done, rebind to the normal window buffer
 		gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);                                                                    
 	}
 
+	/**
+	 * Compiles and links the vertex and fragment shaders used to apply barrel distortion.
+	 * @param gl
+	 * @param vertexShader
+	 * @param fragmentShader
+	 */
 	protected void initShaders(GL2 gl, String vertexShader, String fragmentShader) {
 		shader=gl.glCreateProgram();
 
@@ -463,7 +476,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		if (fragShader==0) {
 			return 0;
 		}
-		
+
 		gl.glShaderSource(fragShader, 1, new String[] { fragCode }, new int[]{fragCode.length()}, 0);
 		gl.glCompileShader(fragShader);
 
