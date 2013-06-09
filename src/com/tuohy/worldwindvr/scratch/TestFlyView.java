@@ -60,8 +60,6 @@ public class TestFlyView extends BasicFlyView {
             throw new IllegalStateException(message);
         }
 
-        System.out.println("  apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
-        
         if (this.viewInputHandler != null)
             this.viewInputHandler.apply();
 
@@ -94,8 +92,6 @@ public class TestFlyView extends BasicFlyView {
             throw new IllegalStateException(message);
         }
 
-        System.out.println("  apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
-        
 //        if (this.viewInputHandler != null)
 //            ((TestFlyViewInputHandler) this.viewInputHandler).apply();
 //
@@ -112,8 +108,6 @@ public class TestFlyView extends BasicFlyView {
     @Override
     protected void doApply(DrawContext dc)
     {
-    	System.out.println("  do apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
-    	
         if (dc == null)
         {
             String message = Logging.getMessage("nullValue.DrawContextIsNull");

@@ -48,7 +48,7 @@ public class WorldWindVR{
 		view = new VRFlyView();
 		
 		//uncomment below to get non-rift stereo 3D
-//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.scratch.StereoOptionSceneControllerTest");
+//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.scratch.DynamicHyperstereoscopySceneController");
 //		System.setProperty("gov.nasa.worldwind.stereo.mode", "device");		
 //		view = new TestFlyView();
 		

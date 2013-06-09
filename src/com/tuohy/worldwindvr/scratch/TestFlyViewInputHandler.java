@@ -538,8 +538,6 @@ public class TestFlyViewInputHandler extends BasicViewInputHandler
             return;
         }
 
-        System.out.println("   handler: " + this.getView().getCurrentEyePosition().getLatitude().degrees);
-        
         // Throttle the frequency at which we process per-frame input, which is usually invoked each frame. This helps
         // balance the input response of high and low framerate applications.
         long time = System.currentTimeMillis();
@@ -578,8 +576,6 @@ public class TestFlyViewInputHandler extends BasicViewInputHandler
             }
             
         }
-        
-        System.out.println("   handler2: " + this.getView().getCurrentEyePosition().getLatitude().degrees);
 
         View view = this.getView();
         if (view == null)
@@ -595,74 +591,6 @@ public class TestFlyViewInputHandler extends BasicViewInputHandler
         {
             view.firePropertyChange(AVKey.VIEW, null, view);
         }
-        
-    }
-    
-    public void applyDoNotAnimate()
-    {
-        // Process per-frame input only when the World Window is the focus owner.
-        if (!this.isWorldWindowFocusOwner())
-        {
-            return;
-        }
-
-        System.out.println("   handler: " + this.getView().getCurrentEyePosition().getLatitude().degrees);
-        
-        // Throttle the frequency at which we process per-frame input, which is usually invoked each frame. This helps
-        // balance the input response of high and low framerate applications.
-        long time = System.currentTimeMillis();
-        if (time - this.lastPerFrameInputTime > DEFAULT_PER_FRAME_INPUT_DELAY)
-        {
-            this.handlePerFrameKeyState(this.keyEventState, GENERATE_EVENTS);
-            this.handlePerFrameMouseState(this.keyEventState, GENERATE_EVENTS);
-
-
-            this.lastPerFrameInputTime = time;
-
-        }
-        else
-        {
-            // Determine whether or not the current key state would have generated a view change event. If so, issue
-            // a repaint event to give the per-frame input a chance to run again.
-            if (this.handlePerFrameKeyState(this.keyEventState, QUERY_EVENTS))
-            {
-                View view = this.getView();
-                if (view != null)
-                {
-                    view.firePropertyChange(AVKey.VIEW, null, view);
-                }
-            }
-
-            // Determine whether or not the current key state would have generated a view change event. If so, issue
-            // a repaint event to give the per-frame input a chance to run again.
-
-            if (this.handlePerFrameMouseState(this.keyEventState, QUERY_EVENTS))
-            {
-                View view = this.getView();
-                if (view != null)
-                {
-                    view.firePropertyChange(AVKey.VIEW, null, view);
-                }
-            }
-            
-        }
-        
-        System.out.println("   handler2: " + this.getView().getCurrentEyePosition().getLatitude().degrees);
-
-        View view = this.getView();
-        if (view == null)
-        {
-            return;
-        }
-//        if (this.gotoAnimControl.stepAnimators())
-//        {
-//            view.firePropertyChange(AVKey.VIEW, null, view);
-//        }
-//        
-//        if (this.uiAnimControl.stepAnimators())
-//        {
-//            view.firePropertyChange(AVKey.VIEW, null, view);
-//        }
         
     }
 
