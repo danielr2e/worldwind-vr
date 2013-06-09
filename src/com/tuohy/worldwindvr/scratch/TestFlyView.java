@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.scratch;
 
 import javax.media.opengl.GL;
 
@@ -11,24 +11,23 @@ import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.view.ViewUtil;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
+import gov.nasa.worldwind.view.firstperson.FlyViewInputHandler;
 import gov.nasa.worldwind.view.firstperson.FlyViewLimits;
 
 /**
- * Custom fly view for WorldWindVR.  This class uses a custom input
- * handler and has a special 'apply' implementation that plays well
- * with stereoscopic rendering.
+ * Custom fly view for WorldWindVR.
  * 
  * @author dtuohy
  *
  */
-public class VRFlyView extends BasicFlyView {
+public class TestFlyView extends BasicFlyView {
 
 	//used to force the viewport to the correct dimensions based on the display height/width
 	int hardCodedHeight = -1;
 	int hardCodedWidth = -1;
 	
-	public VRFlyView(){
-        this.viewInputHandler = new VRFlyViewInputHandler();
+	public TestFlyView(){
+        this.viewInputHandler = new TestFlyViewInputHandler();
 
         this.viewLimits = new FlyViewLimits();
         this.viewLimits.setPitchLimits(DEFAULT_MIN_PITCH, DEFAULT_MAX_PITCH);
@@ -37,35 +36,41 @@ public class VRFlyView extends BasicFlyView {
         loadConfigurationValues();
 	}
 	
-    public void setHeading(Angle heading)
+	@Override
+    public void apply(DrawContext dc)
     {
-        if (heading == null)
+        if (dc == null)
         {
-            String message = Logging.getMessage("nullValue.AngleIsNull");
+            String message = Logging.getMessage("nullValue.DrawContextIsNull");
             Logging.logger().severe(message);
             throw new IllegalArgumentException(message);
         }
 
-//        System.out.println("heading now " + heading);
+        if (dc.getGL() == null)
+        {
+            String message = Logging.getMessage("nullValue.DrawingContextGLIsNull");
+            Logging.logger().severe(message);
+            throw new IllegalStateException(message);
+        }
+
+        if (dc.getGlobe() == null)
+        {
+            String message = Logging.getMessage("layers.AbstractLayer.NoGlobeSpecifiedInDrawingContext");
+            Logging.logger().severe(message);
+            throw new IllegalStateException(message);
+        }
+
+        System.out.println("  apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
         
-        this.heading = ViewUtil.normalizedHeading(heading);
-        this.heading = heading;
-        this.updateModelViewStateID();
-        //resolveCollisionsWithPitch();
+        if (this.viewInputHandler != null)
+            this.viewInputHandler.apply();
+
+        doApply(dc);
+
+        if (this.viewInputHandler != null)
+            this.viewInputHandler.viewApplied();
     }
-    
-    /**
-     * This method replaces the normal apply() method in order to support
-     * seamless (no delay, no jitter) stereoscopic rendering.  It applies
-     * an offset to the current eye position, and does not notify 
-     * input handlers to continue any existing animations.  Animations
-     * interfere with stereoscopic rendering, so they cannot be allowed
-     * to execute when the offset camera location views are being rendered.
-     * 
-     * @param dc
-     * @param offsetDir
-     * @param offsetAmount
-     */
+	
     public void applyWithOffset(DrawContext dc, Angle offsetDir, Angle offsetAmount)
     {
         if (dc == null)
@@ -88,12 +93,13 @@ public class VRFlyView extends BasicFlyView {
             Logging.logger().severe(message);
             throw new IllegalStateException(message);
         }
+
+        System.out.println("  apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
         
-        //we do not instruct the handlers to apply the current state, because it would cause animators to increment
 //        if (this.viewInputHandler != null)
 //            ((TestFlyViewInputHandler) this.viewInputHandler).apply();
 //
-        //here is where we have to make sure the offset is enforced
+        //here is where we have to make sure the offset is preserved
         Position curPosition = this.getEyePosition();
         this.setEyePosition(new Position(LatLon.greatCircleEndPosition(curPosition, offsetDir, offsetAmount),curPosition.getAltitude()));
 
@@ -106,6 +112,8 @@ public class VRFlyView extends BasicFlyView {
     @Override
     protected void doApply(DrawContext dc)
     {
+    	System.out.println("  do apply: " + dc.getView().getCurrentEyePosition().getLatitude().degrees);
+    	
         if (dc == null)
         {
             String message = Logging.getMessage("nullValue.DrawContextIsNull");
@@ -147,12 +155,8 @@ public class VRFlyView extends BasicFlyView {
         // Get the current OpenGL viewport state.
         int[] viewportArray = new int[4];
         this.dc.getGL().glGetIntegerv(GL.GL_VIEWPORT, viewportArray, 0);
-        
-        //MODIFIED for Oculus by DRT 6/5/2013: here we divide the view port width by half because we are only
-        //rendering to half of the screen
-        this.viewport = new java.awt.Rectangle(viewportArray[0], viewportArray[1], hardCodedWidth/2, hardCodedHeight);
-//        System.out.println("viewport is " + viewport);
-        
+        this.viewport = new java.awt.Rectangle(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
+
         // Compute the current clip plane distances.
         this.nearClipDistance = this.computeNearClipDistance();
         this.farClipDistance = this.computeFarClipDistance();
@@ -174,7 +178,19 @@ public class VRFlyView extends BasicFlyView {
 
         //========== after apply (GL matrix state) ==========//
         afterDoApply();
-        
+    }
+
+    protected void afterDoApply()
+    {
+        // Establish frame-specific values.
+        this.lastEyePosition = this.computeEyePositionFromModelview();
+        this.horizonDistance = this.computeHorizonDistance();
+
+        // Clear cached computations.
+        this.lastEyePoint = null;
+        this.lastUpVector = null;
+        this.lastForwardVector = null;
+        this.lastFrustumInModelCoords = null;
     }
 
     /**

@@ -9,11 +9,15 @@ import gov.nasa.worldwind.StereoSceneController;
 import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.LatLon;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.render.DrawContext;
 
 import javax.media.opengl.*;
 
 import com.jogamp.newt.Display;
+import com.tuohy.worldwindvr.scratch.TestFlyView;
 
 import static javax.media.opengl.GL2.*;
 
@@ -35,6 +39,10 @@ import static javax.media.opengl.GL2.*;
  */
 public class OculusStereoSceneController extends BasicSceneController implements StereoSceneController
 {
+
+	/** The average radius of the earth, in meters */
+	public static final double AVG_EARTH_RADIUS_METERS = 6371000;
+	
 	/**
 	 * The default focus angle. May be specified in the World Wind configuration file as the
 	 * <code>gov.nasa.worldwind.StereoFocusAngle</code> property. The default if not specified in the configuration is
@@ -51,6 +59,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * This is the FOV appropriate for the Oculus Rift.
 	 */
 	protected static final double DEFAULT_FOV = 110.0;
+
+	/**
+	 *  The ratio of the current altitude to the interpupillary distance
+	 * used during stereoscopic rendering.  Defining IPD as a ratio means
+	 * that we can ensure a richer depth effect at any altitude (we are calling
+	 * this 'dynamic hyperstereoscopy')
+	 */
+	private static final double ALTITUDE_TO_IPD_RATIO = 30.0;
 	
 	/**
 	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
@@ -241,30 +257,42 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			((VRFlyView) dcView).hardCodeViewPortHeightAndWidth(width,height);
 		}
 
-		// Draw the left eye into the frame buffer
-
-		//taken from github example
+		// Draw the scene in to the frame buffer
 		gl.glPushAttrib(GL_TRANSFORM_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 		//bind the framebuffer ...
 		gl.glBindTexture(GL_TEXTURE_2D, 0);  //this was taken from DistortionCorrection
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		gl.glPushAttrib(GL_VIEWPORT_BIT);
-
+		
+        //compute offset parameters for dynamic hyperstereoscopy
+		Position centerEyePos = dc.getView().getCurrentEyePosition();
+		double radiusAtAltitude = AVG_EARTH_RADIUS_METERS + centerEyePos.getAltitude();
+		double circumferenceAtAltitude = 2*Math.PI*radiusAtAltitude;
+		double hyperStereoOffsetMeters = centerEyePos.getAltitude()/ALTITUDE_TO_IPD_RATIO;
+		double hyperStereoOffsetDegrees = (hyperStereoOffsetMeters/circumferenceAtAltitude)*360;
+		
+		//these are the values that will be used to enforce the interpupillary camera offsets
+		Angle hyperStereoOffset = Angle.fromDegrees(hyperStereoOffsetDegrees);
+		Angle rightEyeOffsetDir = dc.getView().getHeading().add(Angle.POS90);
+		Angle leftEyeOffsetDir = dc.getView().getHeading().subtract(Angle.POS90);
+		
+		//validate interocular distance
+//		Vec4 p1 = dc.getGlobe().computePointFromPosition(rightEyePos);
+//		Vec4 p2 = dc.getGlobe().computePointFromPosition(leftEyePos);
+//		double dist = p1.distanceTo3(p2);
+//		System.out.println("dist is " + dist + " altitude is " + centerEyePos.getAltitude() + " hyper offset is " +hyperStereoOffset.getDegrees());
+		
 		//render into the FBO
 		//left eye
+		((VRFlyView) dcView).applyWithOffset(dc,leftEyeOffsetDir,hyperStereoOffset);
 		gl.glViewport(0,0,w,h);
-		super.draw(dc);
+        super.draw(dc);
 
 		//right eye
 		// Move the view to the right eye, if we are doing true stereoscopy
-		Angle viewHeading = dcView.getHeading();
 		if(this.inStereo){
-			//TODO: for some reason, whenever the camera orientation changes, when the
-			//change stops the left view briefly 'clicks' as the view mysteriously applies
-			//one last unexpected change.  This MUST be fixed.
-			dcView.setHeading(dcView.getHeading().subtract(this.getFocusAngle()));
-			dcView.apply(dc);
+			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,hyperStereoOffset);
 		}
 		try{
 			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
@@ -273,8 +301,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		}
 		finally
 		{
-			// Restore the original view heading
-			dcView.setHeading(viewHeading);
+			// Restore the original eye position
+			dcView.setEyePosition(centerEyePos);
 			dcView.apply(dc);
 		}
 

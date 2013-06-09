@@ -23,9 +23,11 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.tuohy.worldwindvr.scratch.TestFlyView;
+
 
 /**
- * Launcher for the Rift-Compatible Worldwind Virtual Reality application.
+ * Launcher for the Rift-Compatible WorldWind Virtual Reality application.
  * 
  * @author dtuohy
  *
@@ -34,22 +36,21 @@ public class WorldWindVR{
 
 
 	// the first-person view
-	public static VRFlyView view;
+	public static BasicFlyView view;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 
-		AWTInputHandler hand;
-		
 		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.OculusStereoSceneController");
-//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.StereoOptionSceneControllerTest");
-//		System.setProperty("gov.nasa.worldwind.stereo.mode", "device");
 		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
-		
 		view = new VRFlyView();
 		
+		//uncomment below to get non-rift stereo 3D
+//		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.scratch.StereoOptionSceneControllerTest");
+//		System.setProperty("gov.nasa.worldwind.stereo.mode", "device");		
+//		view = new TestFlyView();
 		
 		Frame frame = new Frame("WorldwindFull");
 		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();

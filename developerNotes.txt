@@ -5,19 +5,19 @@ Status  |         Description
  DONE   | Create project on GitHub
  DONE	| Eliminate distortion resulting from changing viewport aspect ratio
  DONE   | Implement 110 degree field of view
+ DONE   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
+ DONE   | Apply Barrel Distortion
+ DONE   | SBS Mono rendering
+ DONE   | SBS stereo rendering
+ DONE   | Adaptive/Heuristic methods for adjusting interpupillary distance for greatest effect (without headaches) when navigating globe
  TODO   | Implement basic keyboard/mouse controls so that you get a reasonable first-person controllable view
  TODO   | Create README targeted at users who just want to run the project in current state
  TODO   | Determine appropriate license for source (probably just take WorldWind's NOSA license?) and apply it - include 38leinaD's license for JRift
  TODO   | Remove HUD, or make useful inside Rift
  TODO   | Display in Oculus Rift resolution 1280x800
- DONE   | SBS Mono rendering
- TODO   | SBS stereo rendering
  TODO	| 'Fast' monoscopic rendering (rasterize only one eye with GPU, then copy pixels to other half)
- TODO   | Find good default interpupillary distance, and apply as camera offset during SBS rendering (see Valve's 'middle eye' model)
- DONE   | Apply Barrel Distortion
  TODO   | Java JNI wrapper for Rift DLL (JRift? Or http://www.softwarepioneering.com/2013/05/java-c-wrapper-for-oculus-rift.html)
  TODO   | Manipulate camera pitch/yaw/roll using data from Rift DLL
- TODO   | Adaptive/Heuristic methods for adjusting interpupillary distance for greatest effect (without headaches) when navigating globe
  TODO   | Make sure everything works with 32-bit and 64-bit Java runtimes
  TODO   | Do something reasonable with vsync (unclear if that means turning on or off)
  TODO   | Devise build process that generates most convenient distribution for users
