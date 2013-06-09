@@ -264,13 +264,16 @@ public class DynamicHyperstereoscopySceneController extends BasicSceneController
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         View dcView = dc.getView();
-
+        
+//        System.out.println(dc.getView().getEyePosition()+ " " + dc.getView().getHeading() + " " + dc.getView().getPitch());
+        
         //compute offset parameters for dynamic hyperstereoscopy
 		double AVG_EARTH_RADIUS_METERS = 6371000;
 		Position centerEyePos = dc.getView().getCurrentEyePosition();
+		Double elevation = dc.getGlobe().getElevation(centerEyePos.getLatitude(), centerEyePos.getLongitude());
 		double radiusAtAltitude = AVG_EARTH_RADIUS_METERS + centerEyePos.getAltitude();
 		double circumferenceAtAltitude = 2*Math.PI*radiusAtAltitude;
-		double hyperStereoOffsetMeters = centerEyePos.getAltitude()/30.0;
+		double hyperStereoOffsetMeters = (centerEyePos.getAltitude() - elevation)/15.0;
 		
 		double hyperStereoOffsetDegrees = (hyperStereoOffsetMeters/circumferenceAtAltitude)*360;
 		Angle hyperStereoOffset = Angle.fromDegrees(hyperStereoOffsetDegrees);

@@ -1,1 +1,7 @@
-Nothing?
+6-8-2013
+ - Fixed stereoscopic rendering so that it is not disturbed by animations.  
+ - Added 'dynamic hyperstereoscopy' implementation that auto-scales IPD based on current elevation.
+ 
+6-9-2013
+ - turned on Microsoft's Virtual Earth imagery layer
+ - hard-coded in some cool initial locations

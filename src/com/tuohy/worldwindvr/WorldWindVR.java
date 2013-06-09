@@ -2,26 +2,16 @@ package com.tuohy.worldwindvr;
 
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.Configuration;
-import gov.nasa.worldwind.StereoOptionSceneController;
-import gov.nasa.worldwind.avlist.AVKey;
-import gov.nasa.worldwind.awt.AWTInputHandler;
-import gov.nasa.worldwind.awt.ViewInputHandler;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.Offset;
-import gov.nasa.worldwind.render.ScreenImage;
+import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
-import gov.nasa.worldwind.view.firstperson.FlyToFlyViewAnimator;
-import gov.nasa.worldwind.view.firstperson.FlyViewInputHandler;
+import gov.nasa.worldwindx.examples.util.LayerManagerLayer;
 
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import com.tuohy.worldwindvr.scratch.TestFlyView;
 
@@ -44,7 +34,7 @@ public class WorldWindVR{
 	public static void main(String[] args) {
 
 		Configuration.setValue("gov.nasa.worldwind.avkey.SceneControllerClassName","com.tuohy.worldwindvr.OculusStereoSceneController");
-		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");
+		System.setProperty("gov.nasa.worldwind.stereo.mode", "redblue");	//TODO: can we fix this so we don't have to specify a bogus redblue parameter?
 		view = new VRFlyView();
 		
 		//uncomment below to get non-rift stereo 3D
@@ -53,12 +43,12 @@ public class WorldWindVR{
 //		view = new TestFlyView();
 		
 		Frame frame = new Frame("WorldwindFull");
-		final WorldWindowGLCanvas worldWindowGLCanvas = new WorldWindowGLCanvas();
-		worldWindowGLCanvas.setModel(new BasicModel());
-		worldWindowGLCanvas.setView(view);
+		final WorldWindowGLCanvas wwd = new WorldWindowGLCanvas();
+		wwd.setModel(new BasicModel());
+		wwd.setView(view);
 //		view.setViewInputHandler(new FlyViewInputHandler());
 
-		worldWindowGLCanvas.addKeyListener(new java.awt.event.KeyListener() {
+		wwd.addKeyListener(new java.awt.event.KeyListener() {
 			public void keyTyped(KeyEvent e) {
 			}
 
@@ -71,29 +61,56 @@ public class WorldWindVR{
 				}
 			}
 		});
+		
+		//TODO: For some reason Bing Imagerly layer MURDERS frame rate, but 
+		//the virtual earth aerial imagery does not (although much of the imagery
+		//appears to be the same?  Do not know why.
+		//From neilson: http://forum.worldwindcentral.com/showpost.php?p=103021&postcount=19
+//		For the Bing and other layers with more than a few levels:
+//			Code:
+//			    <ForceLevelZeroLoads>false</ForceLevelZeroLoads>
+//			    <RetainLevelZeroTiles>false</RetainLevelZeroTiles>
+//		 wwd.getModel().getLayers().add(new LayerManagerLayer(wwd));
+//		wwd.getModel().getLayers().getLayerByName("Bing Imagery").setEnabled(true);
+		wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setEnabled(true);
+//		for(Layer l : wwd.getModel().getLayers()){
+//			System.out.println(l.getName() + " " + l.getClass());
+//		}
 
-		frame.add(worldWindowGLCanvas);
-		frame.setSize(640, 480);
+		frame.add(wwd);
 		frame.setUndecorated(true);
 		int size = frame.getExtendedState();
 		size |= Frame.MAXIMIZED_BOTH;
 		frame.setExtendedState(size);
 
 		frame.setVisible(true);
-		worldWindowGLCanvas.requestFocus();
+		wwd.requestFocus();
 		
 		//set up a reasonable initial camera orientation and globe location.
-
-        // Set view heading, pitch and fov
-        view.setHeading(Angle.fromDegrees(0));
-        view.setPitch(Angle.fromDegrees(89));
-        view.setFieldOfView(Angle.fromDegrees(45));
-        view.setRoll(Angle.fromDegrees(0));
-        //view.setZoom(0);
-
-        Position pos = new Position(new LatLon(Angle.fromDegrees(45), Angle.fromDegrees(-120)), 2000);
-        view.setEyePosition(pos);
+//        cameraToCascades();
+//        cameraToGrandCanyon();
+        cameraToHalfDome();
 	}
 
+	private static void cameraToGrandCanyon() {
+		view.setHeading(Angle.fromDegrees(59.10165621513766));
+        view.setPitch(Angle.fromDegrees(78.11));
+        view.setRoll(Angle.fromDegrees(0));
+        view.setEyePosition(new Position(new LatLon(Angle.fromDegrees(35.97785295310992), Angle.fromDegrees(-111.98296612831203)), 2400));
+	}
+
+	private static void cameraToCascades() {
+		view.setHeading(Angle.fromDegrees(-13.29));
+        view.setPitch(Angle.fromDegrees(90));
+        view.setRoll(Angle.fromDegrees(0));
+        view.setEyePosition(new Position(new LatLon(Angle.fromDegrees(46.4546216), Angle.fromDegrees(-121.495883)), 1938));
+	}
+	
+	private static void cameraToHalfDome() {
+		view.setHeading(Angle.fromDegrees(-85.93005803264815));
+        view.setPitch(Angle.fromDegrees(79.11571000079975));
+        view.setRoll(Angle.fromDegrees(0));
+        view.setEyePosition(new Position(new LatLon(Angle.fromDegrees(37.73131411140283), Angle.fromDegrees(-119.48923402888437)), 2600));
+ 	}
 
 }

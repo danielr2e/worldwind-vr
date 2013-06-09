@@ -66,7 +66,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * that we can ensure a richer depth effect at any altitude (we are calling
 	 * this 'dynamic hyperstereoscopy')
 	 */
-	private static final double ALTITUDE_TO_IPD_RATIO = 50.0;
+	private static final double ALTITUDE_TO_IPD_RATIO = 30.0;
 	
 	/**
 	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
@@ -268,8 +268,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
         //compute offset parameters for dynamic hyperstereoscopy
 		Position centerEyePos = dc.getView().getCurrentEyePosition();
 		double radiusAtAltitude = AVG_EARTH_RADIUS_METERS + centerEyePos.getAltitude();
+		Double elevation = dc.getGlobe().getElevation(centerEyePos.getLatitude(), centerEyePos.getLongitude());
 		double circumferenceAtAltitude = 2*Math.PI*radiusAtAltitude;
-		double hyperStereoOffsetMeters = centerEyePos.getAltitude()/(ALTITUDE_TO_IPD_RATIO/2);
+		double hyperStereoOffsetMeters = (centerEyePos.getAltitude() - elevation)/(ALTITUDE_TO_IPD_RATIO/2);
 		double hyperStereoOffsetDegrees = (hyperStereoOffsetMeters/circumferenceAtAltitude)*360;
 		
 		//these are the values that will be used to enforce the interpupillary camera offsets
