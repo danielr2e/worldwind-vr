@@ -5,7 +5,9 @@ This repository houses a modification to NASA worldwind with Virtual Reality cap
 
 Though the application is actually sort of usably cool as of 8-25-2013, it is currently in 
 a very rough stage of development, this README will be updated with instructions for running 
-it when it is ready. 
+it when it is ready.
+
+If you are insistent on playing with it now, simply run the WorldWindVRTest.launch configuration.
 
 Thanks are due to the following people:
 
