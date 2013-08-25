@@ -26,6 +26,10 @@ Status  |         Description
  TODO   | Create JNLP webstart deployment so demo can be easily launched from browser
  TODO   | Turn on best imagery source (bing?)
  TODO	| Independent movement and look?  This is a cool 'native VR' thing that we might be able to pull off because WW is open source with a custom InputHandler
+ TODO   | Can we get the 'Place Names' layer working again?
+ TODO   | Figure out why reducing resolution does not impact framerate
+ TODO   | Map WASD to arrow movements
+ TODO   | Implement keyboard shortcuts for 'fast travel' to compelling locations
  
 ================= Development ==================
 **** IDE ****
@@ -52,6 +56,9 @@ The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the 
 (6) Create project with name JRift, which will automatically build a project using the Git directory.
  
 ================= Other Notes ================
+
+Minecrift probably has the best branch of JRift:
+ - https://github.com/mabrowning/JRift
 
 This may provide info on how to render SBS 3D:
  - probably just need to change the viewport before rendering each eye!! http://www.felixgers.de/teaching/jogl/viewport.html

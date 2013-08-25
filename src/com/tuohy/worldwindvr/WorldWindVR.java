@@ -13,6 +13,10 @@ import gov.nasa.worldwindx.examples.util.LayerManagerLayer;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
 
+import javax.media.opengl.GLAutoDrawable;
+
+import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.tuohy.worldwindvr.scratch.TestFlyView;
 
 
@@ -23,7 +27,6 @@ import com.tuohy.worldwindvr.scratch.TestFlyView;
  *
  */
 public class WorldWindVR{
-
 
 	// the first-person view
 	public static BasicFlyView view;
@@ -73,9 +76,13 @@ public class WorldWindVR{
 //		 wwd.getModel().getLayers().add(new LayerManagerLayer(wwd));
 //		wwd.getModel().getLayers().getLayerByName("Bing Imagery").setEnabled(true);
 		wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setEnabled(true);
-//		for(Layer l : wwd.getModel().getLayers()){
-//			System.out.println(l.getName() + " " + l.getClass());
-//		}
+		
+		//TODO: this appears not to work when we render on the middle part of the screen with 
+		//offsets (I guess it uses screen coordinates?, can we get it working again?
+		wwd.getModel().getLayers().getLayerByName("Place Names").setEnabled(false);
+		for(Layer l : wwd.getModel().getLayers()){
+			System.out.println(l.getName() + " " + l.getClass());
+		}
 
 		frame.add(wwd);
 		frame.setUndecorated(true);
@@ -85,11 +92,17 @@ public class WorldWindVR{
 
 		frame.setVisible(true);
 		wwd.requestFocus();
+
+		//this causes worldwind to render at a given framerate (like a normal gaming application)
+		//without it, worldwind will only repaint when something changes
+		FPSAnimator animator = new FPSAnimator(wwd, 60);
+		animator.add(wwd);
+		animator.start();
 		
 		//set up a reasonable initial camera orientation and globe location.
 //        cameraToCascades();
-//        cameraToGrandCanyon();
-        cameraToHalfDome();
+        cameraToGrandCanyon();
+//        cameraToHalfDome();
 	}
 
 	private static void cameraToGrandCanyon() {

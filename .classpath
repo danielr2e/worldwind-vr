@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/worldwindx.jar" sourcepath="lib/src.zip"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jrift.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
