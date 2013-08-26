@@ -95,6 +95,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	/** Indicates whether hardware device stereo is available. Valid only after this scene controller draws once. */
 	protected boolean hardwareStereo = false;
 
+	A_DistortionStrategy distorter = new OculusRiftDistortionStrategy();
+	
 	OculusRift oculusRift;
 
 	//shaders for applying barrel distortion (which is inverted by the rift's optics)
@@ -102,16 +104,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	protected int vertShader=0;
 	protected int fragShader=0;
 
-	//used by the shader
-	private int LensCenterLocation;
-	private int ScreenCenterLocation;
-	private int ScaleLocation;
-	private int ScaleInLocation;
-	private int HmdWarpParamLocation;
-	public static float K0 = 1.0f;
-	public static float K1 = 0.22f;
-	public static float K2 = 0.24f;
-	public static float K3 = 0.0f;
 
 	//used for FBO, to which the scene is rendered before distortion
 	protected int colorTextureID = -1;
@@ -289,12 +281,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			this.initFBO(gl,width,height);
 
 			//creates the shaders used for barrel distortion
-			initShaders(gl, ShaderSource.VERTEX_SHADER_SOURCE_BARREL, ShaderSource.FRAGMENT_SHADER_SOURCE_BARREL);
-			LensCenterLocation = gl.glGetUniformLocation(shader, "LensCenter");
-			ScreenCenterLocation = gl.glGetUniformLocation(shader, "ScreenCenter");
-			ScaleLocation = gl.glGetUniformLocation(shader, "Scale");
-			ScaleInLocation = gl.glGetUniformLocation(shader, "ScaleIn");
-			HmdWarpParamLocation = gl.glGetUniformLocation(shader, "HmdWarpParam");
+			initShaders(gl, distorter.getBarrelVertexShaderSource(), distorter.getBarrelFragmentShaderSource());			distorter.initialize(gl, shader);;
 
 			//hard code the viewport height and width (see method comment for reason why)
 			((VRFlyView) dcView).hardCodeViewPortHeightAndWidth(width,height);
@@ -385,11 +372,12 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		try
 		{
+			
 			//left eye to screen
-			renderHalfScreenTexturedQuad(gl, 0.0f, 0.0f, 0.5f, 1.0f, true);
+			distorter.renderHalfScreenTexturedQuad(gl, 0.0f, 0.0f, 0.5f, 1.0f, true);
 
 			//right eye to screen
-			renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
+			distorter.renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
 
 		}
 		finally
@@ -402,53 +390,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glMatrixMode(GL_MODELVIEW);
 			gl.glPopMatrix();
 			gl.glPopAttrib();
-		}
-	}
-
-	/**
-	 * Renders the currently bound texture to half of the screen, with
-	 * a boolean indicating whether that half should be the left or right.
-	 * 
-	 * @param gl
-	 * @param textureId
-	 * @param left
-	 */
-	public void renderHalfScreenTexturedQuad(GL2 gl, float x, float y, float w, float h, boolean left)
-	{
-
-		//compute the parameters for barrel distortion shader
-		float as = w/h;
-		//smaller scaleFactor = bigger 
-		float scaleFactor = 1.0f;
-		float DistortionXCenterOffset;
-		if (left) {
-			DistortionXCenterOffset = 0.25f;
-		}
-		else {
-			DistortionXCenterOffset = -0.25f;
-		}
-		gl.glUniform2f(LensCenterLocation, x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
-		gl.glUniform2f(ScreenCenterLocation, x + w*0.5f, y + h*0.5f);
-		gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * as);;
-		gl.glUniform2f(ScaleInLocation, (2.0f/w), (2.0f/h) / as);
-		gl.glUniform4f(HmdWarpParamLocation, K0, K1, K2, K3);
-
-		//this actually renders the texture from the FBO into the screen
-		if(left){
-			gl.glBegin(GL_TRIANGLE_STRIP);
-			gl.glTexCoord2f(0.0f, 0.0f);   gl.glVertex2f(-1.0f, -1.0f);
-			gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
-			gl.glTexCoord2f(0.0f, 1.0f);   gl.glVertex2f(-1.0f, 1.0f);
-			gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
-			gl.glEnd();
-		}
-		else{
-			gl.glBegin(GL_TRIANGLE_STRIP);
-			gl.glTexCoord2f(0.5f, 0.0f);   gl.glVertex2f(0.0f, -1.0f);
-			gl.glTexCoord2f(1.0f, 0.0f);   gl.glVertex2f(1.0f, -1.0f);
-			gl.glTexCoord2f(0.5f, 1.0f);   gl.glVertex2f(0.0f, 1.0f);
-			gl.glTexCoord2f(1.0f, 1.0f);   gl.glVertex2f(1.0f, 1.0f);
-			gl.glEnd();            
 		}
 	}
 

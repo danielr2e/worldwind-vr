@@ -75,6 +75,8 @@ public class WorldWindVR{
 //			    <RetainLevelZeroTiles>false</RetainLevelZeroTiles>
 //		 wwd.getModel().getLayers().add(new LayerManagerLayer(wwd));
 //		wwd.getModel().getLayers().getLayerByName("Bing Imagery").setEnabled(true);
+		
+		//NOTE: this reduces framerate by about 25%, but that is WAY better than Bing Imagery, which reduces by 60% or more
 		wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setEnabled(true);
 		
 		//TODO: this appears not to work when we render on the middle part of the screen with 
