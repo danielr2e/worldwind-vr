@@ -1,0 +1,29 @@
+WorldWindVR - A Virtual Reality Implementation for NASA WorldWind
+
+====Running====
+
+To run WorldWindVR, simply double click RunWorldWindVR.bat.  It has been tested so far only on Windows, under both 32-bit 
+and 64-bit versions of Java (1.6 or higher).  Mac and Linux support are conceivable, but we are waiting for someone to implement
+a nice wrapper for the Oculus Rift API on those platforms.
+
+====Controls====
+
+Arrow Keys: Movement
+Space Bar: Switches between a set of neat locations
+Escape: Exits the application
+Mouse: Mouse look has not yet been integrated, so you can only look around with the rift itself
+
+Note that the first time you visit a new location, it takes a while for imagery data to load
+and cache, but when you visit the same location later the imagery will usually be present from 
+the get go (including if you exit the application and run WorldWindVR at a later date).
+
+==== Acknowlegdements ====
+
+Thanks are due to the following people:
+
+ - 38leinaD for his JRift project as well as the original LWJGL shader (which we adapted for JOGL
+   and without which we would have been hopelessly lost, as we had no prior 3D graphics experience)
+ - The Minecrift guys (mabrowning et. al) for updating JRift to work with the latest Rift SDK
+ - NASA and its WorldWind development team
+ - Palmer and everyone at Oculus VR for this amazing device and toolkit
+ 

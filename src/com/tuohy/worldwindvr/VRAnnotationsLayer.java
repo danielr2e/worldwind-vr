@@ -104,9 +104,7 @@ public class VRAnnotationsLayer extends RenderableLayer {
 				else if(times>(totalTimes-fadeInIntervals)){
 					messageAnnotation.getAttributes().setOpacity((totalTimes-times)/fadeInIntervals);
 				}
-				System.out.println("I'm alive...");
 			} else {
-				System.out.println("Timer stops now...");
 				messageAnnotation.getAttributes().setOpacity(0.0);
 				//Stop Timer.
 				this.cancel();

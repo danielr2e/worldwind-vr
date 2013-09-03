@@ -6,6 +6,7 @@
 		<mkdir dir="dist/WorldWindVR" />
 		<mkdir dir="dist/WorldWindVR/lib" />
 		<mkdir dir="dist/WorldWindVR/native_libraries" />
+		<copy file="README" todir="dist/WorldWindVR" overwrite="true"/>	
 		<copy file="export/WorldwindVR.jar" todir="dist/WorldWindVR/lib" overwrite="true"/>	
 		<copy file="RunWorldwindVR.bat" todir="dist/WorldWindVR" overwrite="true"/>	
 		

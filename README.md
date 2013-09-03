@@ -5,10 +5,10 @@ This repository houses a modification to NASA worldwind with Virtual Reality cap
 
 Though the application is actually sort of usably cool as of 9-2-2013, though clearly still in development.
 
-The easiest way to run the application is simply to grab WorldWindVR.zip, unzip, and run RunWorldWindVR.bat.
+The easiest way to run the application is simply to grab WorldWindVR.zip, unzip, and run RunWorldWindVR.bat.  It 
+has been tested so far only on Windows, under both 32-bit and 64-bit versions of Java (1.6 or higher).
 
-If you wish to run from Eclipse, just use the 
-
+If you wish to run from Eclipse, use the run/WorldWindVRTest.launch configuration.
 
 Thanks are due to the following people:
 
