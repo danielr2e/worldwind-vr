@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Java\jre7\bin\javaw.exe" -Djava.library.path=.;./native_libraries -Dswing.aatext=true -Xmx1024m -Dfile.encoding=Cp1252 -classpath lib\* com.tuohy.worldwindvr.WorldWindVR x

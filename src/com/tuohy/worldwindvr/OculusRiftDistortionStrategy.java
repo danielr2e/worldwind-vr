@@ -7,7 +7,9 @@ import javax.media.opengl.GL2;
 /**
  * Most of this code, including the distortion shaders and the procedure for offsetting the
  * rendering of the bound FBOs on to the screen, is taken from example code posted by 38LeinaD
- * on the oculusvr.com forums.
+ * on the oculusvr.com forums on April 01, 2013: 
+ * 
+ * https://developer.oculusvr.com/forums/viewtopic.php?f=20&t=88&p=8976&hilit=lwjgl#p977
  * 
  * @author dtuohy
  *
@@ -80,20 +82,26 @@ public class OculusRiftDistortionStrategy extends A_DistortionStrategy implement
 	public void renderHalfScreenTexturedQuad(GL2 gl, float x, float y, float w, float h, boolean left)
 	{
 
+		
+		//TODO: This is not being calculated appropriately.  Unfortunately, if we use the real lens center calculation we
+		//cannot scale up the distorted 
+		float KlugeLensCenter = .1f;
+
+		//NOTE: Original scale calculation in 38LeinaD's code commented out
+		//		float r = 1 + LensCenter;
+		//			float scale = distfunc(r);
+		float scale = 1.8f;
+		float scaleFactor = 1f/ scale;
+
+
 		//compute the parameters for barrel distortion shader
 		if (left) {
-			gl.glUniform2f(LensCenterLocation, x + (w + LensCenter * 0.5f) * 0.5f, y + h*0.5f);
+			gl.glUniform2f(LensCenterLocation, x + (w + KlugeLensCenter * 0.5f) * 0.5f, y + h*0.5f);
 		}
 		else {
-			gl.glUniform2f(LensCenterLocation, x + (w - LensCenter * 0.5f) * 0.5f, y + h*0.5f);
+			gl.glUniform2f(LensCenterLocation, x + (w - KlugeLensCenter * 0.5f) * 0.5f, y + h*0.5f);
 		}
-		float r = 1 + LensCenter;
-		
-		//NOTE: Original scale calculation in 38LeinaD's code commented out
-//		float scale = distfunc(r);
-		float scale = 1.1f;
 
-		float scaleFactor = 1f/ scale;
 
 		gl.glUniform2f(ScreenCenterLocation, x + w*0.5f, y + h*0.5f);
 		gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * AspectRatio);;

@@ -3,11 +3,12 @@ worldwind-vr
 
 This repository houses a modification to NASA worldwind with Virtual Reality capabilities.
 
-Though the application is actually sort of usably cool as of 8-25-2013, it is currently in 
-a very rough stage of development, this README will be updated with instructions for running 
-it when it is ready.
+Though the application is actually sort of usably cool as of 9-2-2013, though clearly still in development.
 
-If you are insistent on playing with it now, simply run the WorldWindVRTest.launch configuration.
+The easiest way to run the application is simply to grab WorldWindVR.zip, unzip, and run RunWorldWindVR.bat.
+
+If you wish to run from Eclipse, just use the 
+
 
 Thanks are due to the following people:
 

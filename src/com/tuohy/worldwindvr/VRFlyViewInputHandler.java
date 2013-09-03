@@ -102,6 +102,9 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
     //protected static final double DEFAULT_KEY_HORIZONTAL_TRANSLATE_MIN_VALUE = 10;
     protected static final double DEFAULT_KEY_TRANSLATE_SMOOTHING_VALUE = .9;
     protected static final double DEFAULT_KEY_HORIZONTAL_TRANSLATE_MAX_VALUE = 1000000.0;
+    //NOTE: This is the parameter that we changed for VR, because movement was too fast when next to the ground (originally 100?)
+    //We can also control movement speed with the 'speed' field in this class (WARNING: manipulating these values appears to make
+    //movement unpredictable, camera does not go in direction of heading back and forwards)
     protected static final double DEFAULT_KEY_HORIZONTAL_TRANSLATE_MIN_VALUE = 100;
 
     protected static final double DEFAULT_KEY_HORIZONTAL_TRANSLATE_MIN_VALUE_SLOW = 1;
@@ -136,7 +139,8 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
             DEFAULT_RESET_PITCH_KEY_ACT
         };
 
-    double speed = 10.0;
+    //controls the speed at which the camera translates on directional key presses
+    double speed = 7.0;
 
     public VRFlyViewInputHandler()
     {
@@ -321,6 +325,10 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
         ViewInputAttributes.DeviceAttributes deviceAttributes,
         ViewInputAttributes.ActionAttributes actionAttributes)
     {
+    	//Changed for VR application: negating the side input means that the camera
+    	//actually moves int he direction of the arrow key that was pressed
+    	sideInput = -sideInput;
+    	
         Angle forwardChange;
         Angle sideChange;
 

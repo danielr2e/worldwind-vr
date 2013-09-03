@@ -27,13 +27,8 @@ import static javax.media.opengl.GL2.*;
  *  - May be the same as this: http://www.roadtovr.com/2013/04/25/vr-expert-to-oculus-rift-devs-make-sure-youre-doing-3d-right-5267
  *
  * A SceneController which renders WorldWind for the Oculus Rift (i.e. in Side-By-Side 3D with
- * barrel distortion).  TODO: Stereoscopic 3D is currently not working, due to nuances of the
- * WorldWind scene controller.
+ * barrel distortion).
  *
- * Note that shaders and bits of the rendering were adapted from 38LeinaD's LWJGL
- * example posted on the OculurVR.com forums on April 01, 2013: 
- * 
- * https://developer.oculusvr.com/forums/viewtopic.php?f=20&t=88&p=8976&hilit=lwjgl#p977
  *
  * @author dtuohy
  */
@@ -75,7 +70,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * that we can ensure a richer depth effect at any altitude (we are calling
 	 * this 'dynamic hyperstereoscopy').  Lower = more exaggerated stereo
 	 */
-	private static final double ALTITUDE_TO_IPD_RATIO = 30.0;
+	private static final double ALTITUDE_TO_IPD_RATIO = 60.0;
 
 	/**
 	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
@@ -95,15 +90,19 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	/** Indicates whether hardware device stereo is available. Valid only after this scene controller draws once. */
 	protected boolean hardwareStereo = false;
 
-	A_DistortionStrategy distorter = new OculusRiftDistortionStrategy();
+	//the Frame that contains the UI
+	WorldWindVR vrFrame;
 	
+	//contains logic for applying barrel distortion shader and lens offset
+	A_DistortionStrategy distorter = new OculusRiftDistortionStrategy();
+
+	//the interface to the rift
 	OculusRift oculusRift;
 
 	//shaders for applying barrel distortion (which is inverted by the rift's optics)
 	protected int shader=0;
 	protected int vertShader=0;
 	protected int fragShader=0;
-
 
 	//used for FBO, to which the scene is rendered before distortion
 	protected int colorTextureID = -1;
@@ -237,6 +236,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	long firstFrameTime = System.currentTimeMillis();
 	protected void doDrawStereoOculus(DrawContext dc)
 	{
+
 		//print out the frame rate
 		frameCount++;
 		if(frameCount==20){
@@ -245,7 +245,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			System.out.println("FPS: " + 1.0/(elapsed/20000.0));
 			firstFrameTime = System.currentTimeMillis();
 		}
-		
+
 		GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
 		View dcView = dc.getView();
@@ -259,12 +259,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			//		System.out.println(oculusRift.getYawDegrees_LH() + " " + oculusRift.getRollDegrees_LH() + " " + oculusRift.getPitchDegrees_LH()+90);
 		}
 
+		//printCameraPosAndOrientation(dcView);
+
 		//set the FOV appropriate for the rift
 		dcView.setFieldOfView(Angle.fromDegrees(DEFAULT_FOV));
 
 		int w = (int)(dcView.getViewport().getFrame().getWidth());
 		int h = (int)(dcView.getViewport().getFrame().getHeight());
-		
+
 		//initialize the frame buffer, into which we will render the view, and the barrel distortion shaders
 		if(framebufferID<0){
 
@@ -272,11 +274,11 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 			int width = gd.getDisplayMode().getWidth();
 			int height = gd.getDisplayMode().getHeight();
-			
+
 			//It appears I can essentially set the render resolution to whatever I want here, but it doesn't seem to affect
 			//framerate - why is this?
-//			width = 1280;
-//			height = 800;
+			//			width = 1280;
+			//			height = 800;
 
 			this.initFBO(gl,width,height);
 
@@ -295,16 +297,23 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		gl.glPushAttrib(GL_VIEWPORT_BIT);
 
-		//compute offset parameters for dynamic hyperstereoscopy
-		Position centerEyePos = dc.getView().getCurrentEyePosition();
+		//compute offset parameters for dynamic hyperstereoscopy (interpupillary gets higher with altitude)
+		Position centerEyePos = new Position(dc.getView().getCurrentEyePosition(),dc.getView().getCurrentEyePosition().getElevation());
 		double radiusAtAltitude = AVG_EARTH_RADIUS_METERS + centerEyePos.getAltitude();
 		Double elevation = dc.getGlobe().getElevation(centerEyePos.getLatitude(), centerEyePos.getLongitude());
 		double circumferenceAtAltitude = 2*Math.PI*radiusAtAltitude;
 		double hyperStereoOffsetMeters = (centerEyePos.getAltitude() - elevation)/(ALTITUDE_TO_IPD_RATIO/2);
-		double hyperStereoOffsetDegrees = (hyperStereoOffsetMeters/circumferenceAtAltitude)*360;
+
+		//we have to account for roll by offsetting the camera vertically as well (e.g. if the head rolls to the 
+		//right, the left eye should be 'high' and the right eye is 'low'.  So we actually have to compute both
+		//lateral and vertical offsets from the 'total' offset
+		double hyperStereoVerticalOffsetMeters = Math.sin(view.getRoll().radians)*hyperStereoOffsetMeters;
+		double hyperStereoLateralOffsetMeters = Math.cos(view.getRoll().radians)*hyperStereoOffsetMeters;
+		double hyperStereoLateralOffsetDegrees = (hyperStereoLateralOffsetMeters/circumferenceAtAltitude)*360;
+		//		System.out.println("offsetting vertically " + hyperStereoVerticalOffsetMeters + " and laterally " + hyperStereoLateralOffsetMeters + " from " + hyperStereoOffsetMeters);
 
 		//these are the values that will be used to enforce the interpupillary camera offsets
-		Angle hyperStereoOffset = Angle.fromDegrees(hyperStereoOffsetDegrees);
+		Angle hyperStereoLateralOffset = Angle.fromDegrees(hyperStereoLateralOffsetDegrees);
 		Angle rightEyeOffsetDir = dc.getView().getHeading().add(Angle.POS90);
 		Angle leftEyeOffsetDir = dc.getView().getHeading().subtract(Angle.POS90);
 
@@ -316,7 +325,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		//render into the FBO
 		//left eye
-		((VRFlyView) dcView).applyWithOffset(dc,leftEyeOffsetDir,hyperStereoOffset);
+		((VRFlyView) dcView).applyWithOffset(dc,leftEyeOffsetDir,centerEyePos,hyperStereoLateralOffset,hyperStereoVerticalOffsetMeters);
+		vrFrame.getAnnotationsLayer().prepareForEye(true);
+		//		System.out.println("Rendered left eye at " + dcView.getEyePosition());
 
 		//determine the width/height of the actual 'renderable' canvas
 		int renderableWidth = (int) (Math.sqrt(SCREEN_RENDERABLE_AREA_RATIO)*w);
@@ -329,7 +340,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//right eye
 		// Move the view to the right eye, if we are doing true stereoscopy
 		if(this.inStereo){
-			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,hyperStereoOffset);
+			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,centerEyePos,hyperStereoLateralOffset,-hyperStereoVerticalOffsetMeters);
+			vrFrame.getAnnotationsLayer().prepareForEye(false);
+			//			System.out.println("Rendered right eye at " + dcView.getEyePosition());
 		}
 		try{
 			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
@@ -339,8 +352,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		finally
 		{
 			// Restore the original eye position
-			dcView.setEyePosition(centerEyePos);
-			dcView.apply(dc);
+//			dcView.setEyePosition(centerEyePos);
+//			dcView.apply(dc);
+			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,centerEyePos,Angle.fromDegrees(0),0);
 		}
 
 		//unbind the FBO
@@ -372,7 +386,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		try
 		{
-			
+
 			//left eye to screen
 			distorter.renderHalfScreenTexturedQuad(gl, 0.0f, 0.0f, 0.5f, 1.0f, true);
 
@@ -391,6 +405,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glPopMatrix();
 			gl.glPopAttrib();
 		}
+	}
+
+	private void printCameraPosAndOrientation(View dcView) {
+		System.out.println("Current camera position and orientation:");
+		System.out.println(" Heading: " + dcView.getHeading().getDegrees());
+		System.out.println(" Pitch: " + dcView.getPitch().getDegrees());
+		System.out.println(" Roll: " + dcView.getRoll().getDegrees());
+		System.out.println(" Position: " + dcView.getEyePosition());
 	}
 
 	/**
@@ -505,5 +527,9 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			System.err.println("Error during compile of fragShader!");
 		}
 		return fragShader;
+	}
+
+	public void setVrFrame(WorldWindVR worldWindVR) {
+		this.vrFrame = worldWindVR;
 	}
 }

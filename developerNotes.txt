@@ -30,6 +30,7 @@ Status  |         Description
  TODO   | Figure out why reducing resolution does not impact framerate
  TODO   | Map WASD to arrow movements
  TODO   | Implement keyboard shortcuts for 'fast travel' to compelling locations
+ TODO   | With extreme head role, stereoscopy is not working correctly for objects which are close to the camera (probably a problem with the camera offset!)
  
 ================= Development ==================
 **** IDE ****

@@ -1,7 +1,5 @@
 package com.tuohy.worldwindvr;
 
-import javax.media.opengl.GL;
-
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Frustum;
 import gov.nasa.worldwind.geom.LatLon;
@@ -12,6 +10,8 @@ import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.view.ViewUtil;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
 import gov.nasa.worldwind.view.firstperson.FlyViewLimits;
+
+import javax.media.opengl.GL;
 
 /**
  * Custom fly view for WorldWindVR.  This class uses a custom input
@@ -64,9 +64,11 @@ public class VRFlyView extends BasicFlyView {
      * 
      * @param dc
      * @param offsetDir
+     * @param anchorPosition 
      * @param offsetAmount
+     * @param verticalOffsetMeters 
      */
-    public void applyWithOffset(DrawContext dc, Angle offsetDir, Angle offsetAmount)
+    public void applyWithOffset(DrawContext dc, Angle offsetDir, Position anchorPosition, Angle offsetAmount, double verticalOffsetMeters)
     {
         if (dc == null)
         {
@@ -94,8 +96,7 @@ public class VRFlyView extends BasicFlyView {
 //            ((TestFlyViewInputHandler) this.viewInputHandler).apply();
 //
         //here is where we have to make sure the offset is enforced
-        Position curPosition = this.getEyePosition();
-        this.setEyePosition(new Position(LatLon.greatCircleEndPosition(curPosition, offsetDir, offsetAmount),curPosition.getAltitude()));
+        this.setEyePosition(new Position(LatLon.greatCircleEndPosition(anchorPosition, offsetDir, offsetAmount),anchorPosition.getAltitude()+verticalOffsetMeters));
 
         doApply(dc);
 

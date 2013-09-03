@@ -1,0 +1,34 @@
+<project name="worldwind-vr" basedir=".">
+	
+	<target name="buildDistribution" depends="export">
+		<property file="maia.properties"/>
+		<mkdir dir="dist" />
+		<mkdir dir="dist/WorldWindVR" />
+		<mkdir dir="dist/WorldWindVR/lib" />
+		<mkdir dir="dist/WorldWindVR/native_libraries" />
+		<copy file="export/WorldwindVR.jar" todir="dist/WorldWindVR/lib" overwrite="true"/>	
+		<copy file="RunWorldwindVR.bat" todir="dist/WorldWindVR" overwrite="true"/>	
+		
+		<!-- copy all files in to the appropriate deployment directories -->
+		<copy todir="dist/WorldWindVR/lib" overwrite="true">
+			<fileset dir="lib" includes="*.jar"/>
+		</copy>	
+		<copy todir="dist/WorldWindVR/native_libraries" overwrite="true">
+			<fileset dir="native_libraries" includes="*.dll"/>
+		</copy>			
+		<zip destfile="WorldWindVR.zip"
+		       basedir="dist"
+		       update="true"
+		  />
+		
+	</target>
+	
+	<!-- Export the WorldwindVR.jar -->
+	<target name="export">
+		<mkdir dir="export" />
+		<jar jarfile="export/WorldwindVR.jar">
+			<fileset dir="bin" excludes="test/**" />
+		</jar>
+	</target>
+	
+</project>
