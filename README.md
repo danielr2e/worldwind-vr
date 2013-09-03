@@ -18,7 +18,7 @@ Thanks are due to the following people:
  - NASA and its WorldWind development team
  - Palmer and everyone at Oculus VR for this amazing device and toolkit
 
-![Screenshot](https://github.com/danielr2e/worldwind-vr/blob/master/screenshots/WorldWindVR1_GrandCanyon.jpg)
-![Screenshot](https://github.com/danielr2e/worldwind-vr/blob/master/screenshots/WorldWindVR2_HalfDome.jpg)
-![Screenshot](https://github.com/danielr2e/worldwind-vr/blob/master/screenshots/WorldWindVR3_Cascades.jpg)
-![Screenshot](https://github.com/danielr2e/worldwind-vr/blob/master/screenshots/WorldWindVR4_Globe.jpg)
+![Screenshot](https://raw.github.com/danielr2e/worldwind-vr/master/screenshots/WorldWindVR1_GrandCanyon.jpg)
+![Screenshot](https://raw.github.com/danielr2e/worldwind-vr/master/screenshots/WorldWindVR2_HalfDome.jpg)
+![Screenshot](https://raw.github.com/danielr2e/worldwind-vr/master/screenshots/WorldWindVR3_Cascades.jpg)
+![Screenshot](https://raw.github.com/danielr2e/worldwind-vr/master/screenshots/WorldWindVR4_Globe.jpg)
