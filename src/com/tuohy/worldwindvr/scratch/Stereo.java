@@ -5,13 +5,12 @@
  */
 package com.tuohy.worldwindvr.scratch;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-
 import gov.nasa.worldwind.Configuration;
-import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
+
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 
 /**
  * Shows how to turn on stereo, which is requested via a Java VM property. This example sets the property directly, but

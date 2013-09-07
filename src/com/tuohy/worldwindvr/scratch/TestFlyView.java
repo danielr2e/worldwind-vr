@@ -1,7 +1,5 @@
 package com.tuohy.worldwindvr.scratch;
 
-import javax.media.opengl.GL;
-
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Frustum;
 import gov.nasa.worldwind.geom.LatLon;
@@ -11,8 +9,9 @@ import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.view.ViewUtil;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
-import gov.nasa.worldwind.view.firstperson.FlyViewInputHandler;
 import gov.nasa.worldwind.view.firstperson.FlyViewLimits;
+
+import javax.media.opengl.GL;
 
 /**
  * Custom fly view for WorldWindVR.

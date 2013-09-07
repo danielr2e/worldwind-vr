@@ -5,20 +5,34 @@
  */
 package com.tuohy.worldwindvr.scratch;
 
-import gov.nasa.worldwind.*;
-import gov.nasa.worldwind.animation.*;
+import gov.nasa.worldwind.Configuration;
+import gov.nasa.worldwind.View;
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.animation.AngleAnimator;
+import gov.nasa.worldwind.animation.AnimationController;
+import gov.nasa.worldwind.animation.AnimationSupport;
+import gov.nasa.worldwind.animation.Animator;
+import gov.nasa.worldwind.animation.MoveToPositionAnimator;
+import gov.nasa.worldwind.animation.RotateToAngleAnimator;
 import gov.nasa.worldwind.avlist.AVKey;
-import gov.nasa.worldwind.awt.*;
-import gov.nasa.worldwind.geom.*;
+import gov.nasa.worldwind.awt.AbstractViewInputHandler;
+import gov.nasa.worldwind.awt.BasicViewInputHandler;
+import gov.nasa.worldwind.awt.KeyEventState;
+import gov.nasa.worldwind.awt.ViewInputActionHandler;
+import gov.nasa.worldwind.awt.ViewInputAttributes;
+import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.Matrix;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.globes.Globe;
-import gov.nasa.worldwind.view.*;
+import gov.nasa.worldwind.view.ViewPropertyAccessor;
+import gov.nasa.worldwind.view.ViewUtil;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
 import gov.nasa.worldwind.view.firstperson.FlyToFlyViewAnimator;
 import gov.nasa.worldwind.view.firstperson.FlyViewLimits;
 import gov.nasa.worldwind.view.orbit.OrbitViewPropertyAccessor;
 
-import java.awt.event.*;
-import java.util.Collection;
+import java.awt.event.KeyEvent;
 
 /**
  * @author jym

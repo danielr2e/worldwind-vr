@@ -1,5 +1,7 @@
 package com.tuohy.worldwindvr;
 
+import gov.nasa.worldwindx.examples.util.ImageAnnotation;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -11,8 +13,6 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-
-import gov.nasa.worldwindx.examples.util.ImageAnnotation;
 
 /**
  * Specialization of ImageAnnotation that displays a line of text with

@@ -1,5 +1,8 @@
 package com.tuohy.worldwindvr;
 
+import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.layers.RenderableLayer;
+
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -8,9 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import gov.nasa.worldwind.avlist.AVKey;
-import gov.nasa.worldwind.layers.RenderableLayer;
 
 public class VRAnnotationsLayer extends RenderableLayer {
 

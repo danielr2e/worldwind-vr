@@ -1,13 +1,5 @@
 package com.tuohy.worldwindvr.scratch;
 
-import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.swing.SwingUtilities;
-
-import com.tuohy.worldwindvr.WorldWindVR;
-
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -15,6 +7,14 @@ import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.ogc.collada.ColladaRoot;
 import gov.nasa.worldwind.ogc.collada.impl.ColladaController;
+
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.SwingUtilities;
+
+import com.tuohy.worldwindvr.WorldWindVR;
 
 public class Throwaway3dModelsLayer {
 

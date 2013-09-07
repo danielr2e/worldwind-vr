@@ -8,24 +8,16 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.Layer;
-import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.view.firstperson.BasicFlyView;
-import gov.nasa.worldwindx.examples.util.LayerManagerLayer;
 
 import java.awt.Frame;
-import java.awt.event.KeyEvent;
 
-import javax.media.opengl.GLAutoDrawable;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.tuohy.worldwindvr.input.VRFlyView;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.input.WorldwindVRMouseListener;
 import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
-import com.tuohy.worldwindvr.scratch.TestFlyView;
 import com.tuohy.worldwindvr.scratch.Throwaway3dModelsLayer;
 
 

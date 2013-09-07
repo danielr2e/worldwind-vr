@@ -1,9 +1,17 @@
 package com.tuohy.worldwindvr.rendering;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.io.File;
-
+import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_TEST;
+import static javax.media.opengl.GL.GL_FRAMEBUFFER;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL2.GL_ENABLE_BIT;
+import static javax.media.opengl.GL2.GL_TRANSFORM_BIT;
+import static javax.media.opengl.GL2.GL_VIEWPORT_BIT;
+import static javax.media.opengl.GL2ES2.GL_FRAGMENT_SHADER;
+import static javax.media.opengl.GL2ES2.GL_VERTEX_SHADER;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import gov.nasa.worldwind.BasicSceneController;
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.StereoSceneController;
@@ -12,9 +20,14 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.DrawContext;
-import gov.nasa.worldwind.view.firstperson.BasicFlyView;
 
-import javax.media.opengl.*;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.GLCapabilitiesImmutable;
 
 import com.tuohy.worldwindvr.WorldWindVR;
 import com.tuohy.worldwindvr.WorldWindVRConstants;
@@ -22,8 +35,6 @@ import com.tuohy.worldwindvr.input.VRFlyView;
 
 import de.fruitfly.ovr.HMDInfo;
 import de.fruitfly.ovr.OculusRift;
-
-import static javax.media.opengl.GL2.*;
 
 /**
  * TODO: This file needs to be updated to implement "correct" stereo, as described at:
