@@ -1,8 +1,10 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.rendering;
 
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 
 import javax.media.opengl.GL2;
+
+import com.tuohy.worldwindvr.WorldWindVRConstants;
 
 /**
  * Most of this code, including the distortion shaders and the procedure for offsetting the
@@ -14,7 +16,7 @@ import javax.media.opengl.GL2;
  * @author dtuohy
  *
  */
-public class OculusRiftDistortionStrategy extends A_DistortionStrategy implements WorldWindVRConstants{
+public class OculusRiftDistortionStrategy extends A_DistortionStrategy {
 
 	public final static String VERTEX_SHADER_SOURCE_BARREL = 
 			"void main() {\n" +
@@ -82,11 +84,11 @@ public class OculusRiftDistortionStrategy extends A_DistortionStrategy implement
 	public void renderHalfScreenTexturedQuad(GL2 gl, float x, float y, float w, float h, boolean left)
 	{
 
-		
 		//TODO: This is not being calculated appropriately.  Unfortunately, if we use the real lens center calculation we
-		//cannot scale up the distorted 
+		//cannot scale up the distorted.  This variable interacts with the scaleFactor and with the SCREEN_RENDERABLE_AREA_RATIO
+		//field in OculusStereoSceneController
 		float KlugeLensCenter = .1f;
-
+		
 		//NOTE: Original scale calculation in 38LeinaD's code commented out
 		//		float r = 1 + LensCenter;
 		//			float scale = distfunc(r);
@@ -104,8 +106,8 @@ public class OculusRiftDistortionStrategy extends A_DistortionStrategy implement
 
 
 		gl.glUniform2f(ScreenCenterLocation, x + w*0.5f, y + h*0.5f);
-		gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * AspectRatio);;
-		gl.glUniform2f(ScaleInLocation, (2.0f/w), (2.0f/h) / AspectRatio);
+		gl.glUniform2f(ScaleLocation, (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * WorldWindVRConstants.AspectRatio);;
+		gl.glUniform2f(ScaleInLocation, (2.0f/w), (2.0f/h) / WorldWindVRConstants.AspectRatio);
 		gl.glUniform4f(HmdWarpParamLocation, K0, K1, K2, K3);
 
 		//this actually renders the texture from the FBO into the screen

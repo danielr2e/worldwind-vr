@@ -26,7 +26,7 @@ public class OutlinedTextAnnotation extends ImageAnnotation {
 
 	private String outlinedText;
 	private Color outlineColor = Color.BLACK;
-	private Color fillColor = new Color(100,140,255);
+	private Color fillColor = new Color(50,255,100);
 	Font font;
 	Graphics2D graphicsContext;
 	

@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.input;
 
 /**
  * Describes an example location for use with WorldWindVR

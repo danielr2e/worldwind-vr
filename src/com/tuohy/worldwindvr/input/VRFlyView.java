@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.input;
 
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Frustum;

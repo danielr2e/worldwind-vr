@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.rendering;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -15,6 +15,10 @@ import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.view.firstperson.BasicFlyView;
 
 import javax.media.opengl.*;
+
+import com.tuohy.worldwindvr.WorldWindVR;
+import com.tuohy.worldwindvr.WorldWindVRConstants;
+import com.tuohy.worldwindvr.input.VRFlyView;
 
 import de.fruitfly.ovr.HMDInfo;
 import de.fruitfly.ovr.OculusRift;
@@ -40,6 +44,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * center but only on this fraction of the over all screen real estate (all else will be black).
 	 * 
 	 * 1.0 = render full screen
+	 * 
+	 * This interacts with the 'lens center' and 'scale' parameters in OculusRiftDistortionStrategy
 	 * 
 	 */
 	public static final double SCREEN_RENDERABLE_AREA_RATIO = 0.75;
@@ -70,7 +76,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 * that we can ensure a richer depth effect at any altitude (we are calling
 	 * this 'dynamic hyperstereoscopy').  Lower = more exaggerated stereo
 	 */
-	private static final double ALTITUDE_TO_IPD_RATIO = 60.0;
+	private static final double ALTITUDE_TO_IPD_RATIO = 50.0;
 
 	/**
 	 * Indicates whether stereo is being applied, either because a stereo device is being used or a stereo mode is in
@@ -92,7 +98,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 	//the Frame that contains the UI
 	WorldWindVR vrFrame;
-	
+
 	//contains logic for applying barrel distortion shader and lens offset
 	A_DistortionStrategy distorter = new OculusRiftDistortionStrategy();
 
@@ -108,6 +114,10 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	protected int colorTextureID = -1;
 	protected int framebufferID = -1;
 	protected int depthRenderBufferID = -1;
+	
+	//these are the 'reference' angles, controlled by the mouse, from which the user can look around in the rift
+	private double referencePitchAngleDegrees;
+	private double referenceYawAngleDegrees;
 
 
 	/** Constructs an instance and initializes its stereo mode to */
@@ -253,13 +263,13 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//consult the oculus for the current camera orientation
 		if(oculusRift.isInitialized()){
 			oculusRift.poll();
-			dcView.setHeading(Angle.fromDegrees(oculusRift.getYawDegrees_LH()));
+			dcView.setHeading(Angle.fromDegrees(this.referenceYawAngleDegrees + oculusRift.getYawDegrees_LH()));
 			dcView.setRoll(Angle.fromDegrees(oculusRift.getRollDegrees_LH()));
-			dcView.setPitch(Angle.fromDegrees(-oculusRift.getPitchDegrees_LH()+90));
+			dcView.setPitch((Angle.fromDegrees((this.referencePitchAngleDegrees-oculusRift.getPitchDegrees_LH())+90)));
 			//		System.out.println(oculusRift.getYawDegrees_LH() + " " + oculusRift.getRollDegrees_LH() + " " + oculusRift.getPitchDegrees_LH()+90);
 		}
 
-		//printCameraPosAndOrientation(dcView);
+//		printCameraPosAndOrientation(dcView);
 
 		//set the FOV appropriate for the rift
 		dcView.setFieldOfView(Angle.fromDegrees(DEFAULT_FOV));
@@ -277,8 +287,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 			//It appears I can essentially set the render resolution to whatever I want here, but it doesn't seem to affect
 			//framerate - why is this?
-			//			width = 1280;
-			//			height = 800;
+			width = (int) WorldWindVRConstants.RenderHorizontalResolution;
+			height = (int) WorldWindVRConstants.RenderVerticalResolution;
 
 			this.initFBO(gl,width,height);
 
@@ -352,8 +362,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		finally
 		{
 			// Restore the original eye position
-//			dcView.setEyePosition(centerEyePos);
-//			dcView.apply(dc);
+			//			dcView.setEyePosition(centerEyePos);
+			//			dcView.apply(dc);
 			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,centerEyePos,Angle.fromDegrees(0),0);
 		}
 
@@ -531,5 +541,21 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 	public void setVrFrame(WorldWindVR worldWindVR) {
 		this.vrFrame = worldWindVR;
+	}
+	
+	public double getReferencePitchAngleDegrees() {
+		return referencePitchAngleDegrees;
+	}
+
+	public void setReferencePitchAngleDegrees(double referencePitchAngleDegrees) {
+		this.referencePitchAngleDegrees = referencePitchAngleDegrees;
+	}
+
+	public double getReferenceYawAngleDegrees() {
+		return referenceYawAngleDegrees;
+	}
+
+	public void setReferenceYawAngleDegrees(double referenceYawAngleDegrees) {
+		this.referenceYawAngleDegrees = referenceYawAngleDegrees;
 	}
 }

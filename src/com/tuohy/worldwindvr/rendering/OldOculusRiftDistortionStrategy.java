@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.rendering;
 
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 

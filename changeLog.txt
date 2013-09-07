@@ -1,7 +1,19 @@
-6-8-2013
+9/7/2013
+ - added yaw mouse look (to allow turning around)
+ - added WASD cmera movement
+ - added shift key slow down
+ - added pop up launch dialog that allows specifying resolution
+ - added throwaway code experimentation with 3D models
+ - added Aiguille du Midi sample location
+ - refactored into better package structure
+
+August
+ - actually made everything work with Oculus Rift
+
+6-9-2013
  - Fixed stereoscopic rendering so that it is not disturbed by animations.  
  - Added 'dynamic hyperstereoscopy' implementation that auto-scales IPD based on current elevation.
  
-6-9-2013
+6-8-2013
  - turned on Microsoft's Virtual Earth imagery layer
  - hard-coded in some cool initial locations

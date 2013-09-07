@@ -18,25 +18,30 @@ public class VRAnnotationsLayer extends RenderableLayer {
 	OutlinedTextAnnotation messageAnnotation;
 
 	public VRAnnotationsLayer(){
+		if(WorldWindVRConstants.RenderHorizontalResolution<1920){
+			messageFont = new Font("Helvetica",Font.PLAIN,16);
+		}
+		
 		this.showMessageImmediately("Welcome to the WorldWindVR Demo!", 7);
+		this.queueMessage("Use W,A,S,D to Navigate");
+		this.queueMessage("Use Shift Key to Change Navigation Speed");
 		this.queueMessage("Use Space Bar to Change Locations");
-		this.queueMessage("Use Arrow Keys to Navigate");
 		this.queueMessage("Note: on first visit to any location...");
 		this.queueMessage("...it will take time to cache imagery.");
 		this.queueMessage("Press Escape to Exit");
 	}
 
 	public void prepareForEye(boolean left){
-		float anchorPointX = WorldWindVRConstants.HorizontalResolution/2.0f;
-		float anchorPointY = WorldWindVRConstants.VerticalResolution/2.0f;
+		float anchorPointX = WorldWindVRConstants.RenderHorizontalResolution/4.0f;
+		float anchorPointY = WorldWindVRConstants.RenderVerticalResolution/2.0f;
 		float messageWidth = messageAnnotation.getGraphicsContext().getFontMetrics().stringWidth(messageAnnotation.getOutlinedText());
 		float messageHeight = messageAnnotation.getGraphicsContext().getFontMetrics().getHeight();
 		anchorPointX -= (messageWidth/2.0f);
 		anchorPointY += messageHeight/2.0f;
 
 		//not sure why we need this
-		anchorPointX -= 50;
-		anchorPointY += 110 ;
+		anchorPointX += 100;
+//		anchorPointY += 110 ;
 
 		int pixelSeparation = 20;
 		if(left){

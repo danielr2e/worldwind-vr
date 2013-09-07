@@ -1,4 +1,4 @@
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.rendering;
 
 import javax.media.opengl.GL2;
 

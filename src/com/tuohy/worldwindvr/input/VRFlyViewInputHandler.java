@@ -3,12 +3,15 @@
  * National Aeronautics and Space Administration.
  * All Rights Reserved.
  */
-package com.tuohy.worldwindvr;
+package com.tuohy.worldwindvr.input;
 
 import gov.nasa.worldwind.*;
 import gov.nasa.worldwind.animation.*;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.*;
+import gov.nasa.worldwind.awt.ViewInputAttributes.ActionAttributes;
+import gov.nasa.worldwind.awt.ViewInputAttributes.ActionAttributes.KeyAction;
+import gov.nasa.worldwind.awt.ViewInputAttributes.ActionAttributesMap;
 import gov.nasa.worldwind.geom.*;
 import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.view.*;
@@ -140,8 +143,12 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
         };
 
     //controls the speed at which the camera translates on directional key presses
-    double speed = 7.0;
+    double cameraTranslationSpeed = 7.0;
 
+    public void setCameraTranslationSpeed(double cameraTranslationSpeed){
+    	this.cameraTranslationSpeed = cameraTranslationSpeed;
+    }
+    
     public VRFlyViewInputHandler()
     {
         // Mouse Button Horizontal Translate Events
@@ -203,6 +210,21 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
         this.getAttributes().setValues(ViewInputAttributes.DEVICE_KEYBOARD,
             ViewInputAttributes.VIEW_HORIZONTAL_TRANSLATE_SLOW,
             DEFAULT_KEY_HORIZONTAL_TRANSLATE_MIN_VALUE_SLOW, DEFAULT_KEY_HORIZONTAL_TRANSLATE_MAX_VALUE_SLOW);
+        
+        //TODO: WASD movement
+//        ViewInputAttributes attr;
+//        ActionAttributes.KeyAction W_HORIZONTAL_TRANSUP_KEY_ACT = new ActionAttributes.KeyAction(KeyEvent.VK_W, ActionAttributes.KeyAction.KA_DIR_Y, 1);
+//        ActionAttributes.KeyAction[] horizontalTransKeyEvents =
+//            {
+//        		W_HORIZONTAL_TRANSUP_KEY_ACT
+//            };
+//        this.getAttributes().addAction(ViewInputAttributes.DEVICE_KEYBOARD, ActionAttributes.NO_MODIFIER, ViewInputAttributes.VIEW_HORIZONTAL_TRANS_KEYS,
+//                new ActionAttributes(horizontalTransKeyEvents, ActionAttributes.ActionTrigger.ON_KEY_DOWN, 0,
+//                    DEFAULT_KEY_HORIZONTAL_TRANSLATE_MIN_VALUE, DEFAULT_KEY_HORIZONTAL_TRANSLATE_MAX_VALUE,
+//                    ViewInputAttributes.DEFAULT_HORIZONTAL_TRANSLATE_SMOOTHING_ENABLED, ViewInputAttributes.DEFAULT_HORIZONTAL_TRANSLATE_SMOOTHING_VALUE));
+
+        
+        
         /*
         this.getAttributes().setActionTrigger(ViewInputAttributes.DEVICE_KEYBOARD,
             ViewInputAttributes.VIEW_HORIZONTAL_TRANSLATE_SLOW,
@@ -236,7 +258,7 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
                 DEFAULT_MOUSE_WHEEL_VERTICAL_TRANSLATE_VALUE_MIN,
                 DEFAULT_MOUSE_WHEEL_VERTICAL_TRANSLATE_VALUE_MAX);
         }
-
+        
         // P Key Reset Pitch
         this.getAttributes().addAction(ViewInputAttributes.DEVICE_KEYBOARD,
             ViewInputAttributes.ActionAttributes.NO_MODIFIER, ACTION_RESET_PITCH,
@@ -248,6 +270,27 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
             this.getAttributes().getActionMap(ViewInputAttributes.DEVICE_KEYBOARD).getActionAttributes(
                 ACTION_RESET_PITCH);
         actionAttrs.setActionListener(new ResetPitchActionListener());
+        
+        //TODO: This is such a horrible hack.  We're basically taking the already mapped
+        //actions and just changing the key codes from the direction keys to WASD.  It would be
+        //lovely if we could have both work
+        ActionAttributesMap m = getAttributes().getActionMap(ViewInputAttributes.DEVICE_KEYBOARD);
+        ActionAttributes translationActionAttrs = m.getActionAttributes(ViewInputAttributes.VIEW_HORIZONTAL_TRANS_KEYS);
+        for(Object actionObj : translationActionAttrs.getKeyActions()){
+        	KeyAction action = (KeyAction)actionObj;
+        	if(action.keyCode==KeyEvent.VK_LEFT){
+        		action.keyCode = KeyEvent.VK_A;
+        	}
+        	if(action.keyCode==KeyEvent.VK_UP){
+        		action.keyCode = KeyEvent.VK_W;
+        	}
+        	if(action.keyCode==KeyEvent.VK_DOWN){
+        		action.keyCode = KeyEvent.VK_S;
+        	}
+        	if(action.keyCode==KeyEvent.VK_RIGHT){
+        		action.keyCode = KeyEvent.VK_D;
+        	}	
+        }
     }
 
     protected void onMoveTo(Position focalPosition, ViewInputAttributes.DeviceAttributes deviceAttributes,
@@ -343,9 +386,9 @@ public class VRFlyViewInputHandler extends BasicViewInputHandler
         else
         {
             forwardChange = Angle.fromDegrees(
-                forwardInput * speed * getScaleValueElevation(deviceAttributes, actionAttributes));
+                forwardInput * cameraTranslationSpeed * getScaleValueElevation(deviceAttributes, actionAttributes));
             sideChange = Angle.fromDegrees(
-                sideInput * speed * getScaleValueElevation(deviceAttributes, actionAttributes));
+                sideInput * cameraTranslationSpeed * getScaleValueElevation(deviceAttributes, actionAttributes));
         }
         onHorizontalTranslateRel(forwardChange, sideChange, actionAttributes);
     }
