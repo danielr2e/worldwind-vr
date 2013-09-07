@@ -12,6 +12,7 @@
 	<classpathentry kind="lib" path="lib/jogl-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_10 32-bit"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
