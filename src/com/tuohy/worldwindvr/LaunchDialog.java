@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -56,6 +57,7 @@ public class LaunchDialog extends JDialog {
 		optionsPane.add(resBox, c);
 		c.gridy = 1;
 		
+		mainPanel.add(new JLabel(new ImageIcon("resources/splash.png")),BorderLayout.NORTH);
 		mainPanel.add(optionsPane, BorderLayout.CENTER);
 		mainPanel.add(launchButton,BorderLayout.SOUTH);
 		this.setContentPane(mainPanel);
@@ -68,6 +70,9 @@ public class LaunchDialog extends JDialog {
 		        System.exit(0);
 		      }
 		    });
+		
+
+		setSize(460,400);
 	}
 	
 	public class ScreenResolution{

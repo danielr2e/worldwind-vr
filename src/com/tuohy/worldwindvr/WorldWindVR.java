@@ -132,7 +132,6 @@ public class WorldWindVR extends Frame{
 	    catch (Exception e){}
 		
 		LaunchDialog dialog = new LaunchDialog();
-		dialog.setSize(250,150);
 		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
 		

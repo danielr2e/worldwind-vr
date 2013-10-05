@@ -29,6 +29,10 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 		cameraLocations.add(new SampleGeographicLocation("Cascades Volcano Range",new double[]{-13.29,90,46.4546216,-121.495883,1938}));
 		cameraLocations.add(new SampleGeographicLocation("Chamonix - Aiguille du Midi",new double[]{110.12,60.11,45.8786,6.8872,4250}));
 		cameraLocations.add(new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530}));
+		cameraLocations.add(new SampleGeographicLocation("Alpstein, Switzerland",new double[]{110.12,60.11,47.2500,9.3333,1530}));
+		cameraLocations.add(new SampleGeographicLocation("Glencoe, Scotland",new double[]{110.12,60.11,56.6828, 5.1060,1530}));
+//		cameraLocations.add(new SampleGeographicLocation("Saint Mary's - Glacier National Park",new double[]{110.12,60.11,39.8358,-105.6469,1530}));
+//		cameraLocations.add(new SampleGeographicLocation("Bora Bora",new double[]{110.12,60.11,-16.4944,151.7364,1530}));
 //		locations.add(new SampleGeographicLocation("Niagara Falls",new double[]{110.12,60.11,43.08,-79.07,1530}));
 	}
 	
