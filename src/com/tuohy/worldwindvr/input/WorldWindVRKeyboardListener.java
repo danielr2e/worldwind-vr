@@ -56,7 +56,7 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 			System.exit(0);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_R){
-//			vrFrame.getRobot().start();
+			vrFrame.getRobot().start();
 		}
 	}
 	
