@@ -121,6 +121,11 @@ public class PrecacheRobot {
 			}			
 			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(circleIndex*radiansPer100m));
 			cam = new CameraLocation(latlon,cameraHeightAtFocusElevation);
+			
+			// Rotation
+			// Basic method: rotate 2 degrees per update
+			Angle h = vrFrame.view.getHeading();
+			vrFrame.view.setHeading(h.add(Angle.fromDegrees(2)));
 
 			//updates a surface line with the new position, this line will show the entire camera path
 			if(DEBUG_MODE_ON){
