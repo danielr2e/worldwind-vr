@@ -92,7 +92,8 @@ public class PrecacheRobot {
 	class PrecacheTravelTask extends TimerTask {
 		LatLon focus;
 		CameraLocation cam;
-		double curRadius; //meters
+		int circleIndex = 1;
+		double dradius = 100; // distance between each circle;
 		Angle theta;
 		Angle dtheta;
 		double cameraHeightAtFocusElevation;
@@ -100,9 +101,9 @@ public class PrecacheRobot {
 
 		PrecacheTravelTask(LatLon focus) {
 			this.focus = focus;
-			curRadius = 1;
+			circleIndex = 1;
 			theta = Angle.ZERO;
-			dtheta = Angle.fromRadians(stepSize / 100*curRadius);
+			dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
 			cameraHeightAtFocusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude()) + height;
 			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),cameraHeightAtFocusElevation);			
 		}
@@ -110,14 +111,18 @@ public class PrecacheRobot {
 		public void run() {
 			theta = theta.add(dtheta);
 			if (theta.radians > (Math.PI * 2)) {
+				if (DEBUG_MODE_ON) { System.out.println(theta.radians + ", " + dtheta.radians); }
 				theta = Angle.ZERO;
-				curRadius += 1;
-				dtheta = Angle.fromRadians(stepSize / 100*curRadius);
+				circleIndex += 1;
+				dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
+				if (DEBUG_MODE_ON) { 
+					System.out.println("Next Circle: " + circleIndex + ", " + dtheta.degrees); 
+				}
 			}			
-			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(curRadius*radiansPer100m));
+			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(circleIndex*radiansPer100m));
 			cam = new CameraLocation(latlon,cameraHeightAtFocusElevation);
 
-			//upates a surface line with the new position, this line will show the entire camera path
+			//updates a surface line with the new position, this line will show the entire camera path
 			if(DEBUG_MODE_ON){
 				debugLocations.add(latlon);
 				
