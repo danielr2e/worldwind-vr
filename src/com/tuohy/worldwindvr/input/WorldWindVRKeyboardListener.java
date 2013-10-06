@@ -1,6 +1,7 @@
 package com.tuohy.worldwindvr.input;
 
 
+import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -53,6 +54,9 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
+		}
+		if (e.getKeyCode() == KeyEvent.VK_R){
+//			vrFrame.getRobot().start();
 		}
 	}
 	

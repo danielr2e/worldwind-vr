@@ -37,6 +37,12 @@ public class WorldWindVR extends Frame{
 
 	//displays messages to the user
 	private VRAnnotationsLayer annotationsLayer;
+	
+	private PrecacheRobot robot;
+
+	public PrecacheRobot getRobot() {
+		return robot;
+	}
 
 	public WorldWindVR(){
 		super("WorldWindVR");
@@ -55,8 +61,9 @@ public class WorldWindVR extends Frame{
 		wwd.setView(view);
 		((OculusStereoSceneController)wwd.getSceneController()).setVrFrame(this);
 //		view.setViewInputHandler(new FlyViewInputHandler());
-
-		wwd.addKeyListener(new WorldWindVRKeyboardListener(this));
+		WorldWindVRKeyboardListener vrkbl = new WorldWindVRKeyboardListener(this);
+		wwd.addKeyListener(vrkbl);
+				
 		wwd.addMouseMotionListener(new WorldwindVRMouseListener(this));
 		
 		//TODO: For some reason Bing Imagerly layer MURDERS frame rate, but 
@@ -90,6 +97,7 @@ public class WorldWindVR extends Frame{
 		//prepare annotations layer
 		annotationsLayer = new VRAnnotationsLayer();
 		wwd.getModel().getLayers().add(annotationsLayer);
+		robot = new PrecacheRobot(vrkbl, this);
 
 		add(wwd);
 		setUndecorated(true);

@@ -91,7 +91,6 @@ public class VRAnnotationsLayer extends RenderableLayer {
 	}
 
 	class FadeInOutMessageTask extends TimerTask {
-		//times member represent calling times.
 		private int times = 0;
 		private int totalTimes = 40;
 		private double fadeInIntervals = 10;
