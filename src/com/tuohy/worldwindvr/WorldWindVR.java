@@ -14,6 +14,7 @@ import java.awt.Frame;
 import javax.swing.UIManager;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import com.tuohy.worldwindvr.input.SampleGeographicLocation;
 import com.tuohy.worldwindvr.input.VRFlyView;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.input.WorldwindVRMouseListener;
@@ -38,11 +39,13 @@ public class WorldWindVR extends Frame{
 	//displays messages to the user
 	private VRAnnotationsLayer annotationsLayer;
 	
+	//whether to use the rift and interpret mouse movements
+	boolean robotModeOn = false;
+	//robot that is used to precache imagery
 	private PrecacheRobot robot;
-
-	public PrecacheRobot getRobot() {
-		return robot;
-	}
+	
+	//contains the locations that the user can rotate through
+	SampleLocationsProvider sampleLocationsProvider = new SampleLocationsProvider();
 
 	public WorldWindVR(){
 		super("WorldWindVR");
@@ -112,9 +115,7 @@ public class WorldWindVR extends Frame{
 		animator.start();
 		
 		//set up a reasonable initial camera orientation and globe location.
-//        cameraToCascades();
-        cameraToGrandCanyon();
-//        cameraToHalfDome();
+		viewToLocation(this.sampleLocationsProvider.getNextLocation().getPosition());
         
         //show the application and request mouse/keyboard focus
 		setVisible(true);
@@ -146,16 +147,12 @@ public class WorldWindVR extends Frame{
 //		new WorldWindVR();
 	}
 	
-	private void cameraToGrandCanyon() {
-		double[] loc = new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530};
-		viewToLocation(loc);
-	}
 
-	public void viewToLocation(double[] loc) {
-		view.setHeading(Angle.fromDegrees(loc[0]));
-        view.setPitch(Angle.fromDegrees(loc[1]));
-        view.setRoll(Angle.fromDegrees(0));
-        view.setEyePosition(new Position(new LatLon(Angle.fromDegrees(loc[2]), Angle.fromDegrees(loc[3])), loc[4]));
+	public void viewToLocation(Position pos) {
+//		view.setHeading(Angle.fromDegrees(loc[0]));
+//        view.setPitch(Angle.fromDegrees(loc[1]));
+//        view.setRoll(Angle.fromDegrees(0));
+        view.setEyePosition(pos);
 	}
 
 	public VRFlyView getView() {
@@ -168,5 +165,21 @@ public class WorldWindVR extends Frame{
 
 	public OculusStereoSceneController getOculusSceneController() {
 		return (OculusStereoSceneController) wwd.getSceneController();
+	}
+	
+	public SampleLocationsProvider getSampleLocationsProvider() {
+		return sampleLocationsProvider;
+	}
+
+	public PrecacheRobot getRobot() {
+		return robot;
+	}
+	
+	public boolean isRobotModeOn() {
+		return robotModeOn;
+	}
+
+	public void setRobotModeOn(boolean robotModeOn) {
+		this.robotModeOn = robotModeOn;
 	}
 }

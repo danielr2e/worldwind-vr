@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -17,25 +16,54 @@ import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.SurfacePolyline;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
 
-import com.tuohy.worldwindvr.input.SampleGeographicLocation;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
 
+/**
+ * Directs the camera through a path that causes WorldWind to load the imagery
+ * data needed for the set of sample locations.
+ * 
+ * @author gtuohy
+ *
+ */
 public class PrecacheRobot {
 
-	private final boolean DEBUG_MODE_ON = true;
+	private final boolean DEBUG_MODE_ON = false;
 	RenderableLayer debugLayer = new RenderableLayer();
 	SurfacePolyline debugLine = new SurfacePolyline();
 	List<LatLon> debugLocations = Collections.synchronizedList(new ArrayList<LatLon>());
 
 	//final double dtheta = 3.142/50; // pi/50 -> 100 updates per revolution
 	// rem: 6378.137 km/earth radian. We want ~1km per revolution, so 1/100th of a km per update
-	final double height = 1000; // meters above ground
+	final double height = 1200; // meters above ground
 	final double radiansPer100m = 1.0 / 63781.37;
-	final double stepSize = 5; // meters
+	final double radiansPerMeter = 1.0/6378137;
+	final double stepSize = 20; // meters
 	WorldWindVR vrFrame;
 	WorldWindVRKeyboardListener vrKey;
 	OculusStereoSceneController sceneController;
+
+	//parameters and state for the robot
+	long startTime;
+	LatLon focus;
+	double radius = 100; // 100 + (dradius/2pi)theta
+	double dradius = 500; // distance(m) between each loop of the spiral
+	float millisPerStep = 20; //how often to take another step along the spiral
+	Angle theta;
+	Angle phi;
+	Angle dtheta= Angle.fromRadians(stepSize / radius);
+	Angle dphi = Angle.fromDegrees(1);
+	float millisToSpendAtEachLoc = 80000;  //the amount of time to spend at each location before switching
+	double focusElevation;
+	//simply keeps track of how many times the robot has been consulted
+	int intervalsCounter = 0;
+	// reminder: dtheta = step size / radius
+
+	//these parameters allow us to 'pick up where we left off' each time we return to a previously visited location
+	int timesThroughAllLocations = 0;	//how many times we have cycled through all sample locations
+	float stepsPerTimeAtLoc = millisToSpendAtEachLoc/millisPerStep;
+	
+
 	/**
 	 * @param args
 	 */
@@ -55,95 +83,121 @@ public class PrecacheRobot {
 		}
 	}
 
-	class CameraLocation {
-		Angle latitude;
-		Angle longitude;
-		double elevation;
+//	class CameraLocation {
+//		Angle latitude;
+//		Angle longitude;
+//		double elevation;
+//
+//		public Position toPosition() {
+//			return new Position(this.latitude, this.longitude, this.elevation);
+//		}
+//
+//		public LatLon toLatLon() {
+//			return new LatLon(this.latitude, this.longitude);
+//		}
+//
+//		public CameraLocation(LatLon latLon, double fixedHeight) {
+//			this.latitude = latLon.getLatitude();
+//			this.longitude = latLon.getLongitude();
+//			//this.elevation = vrFrame.wwd.getView().getGlobe().getElevation(this.latitude, this.longitude) + height;
+//			this.elevation = fixedHeight;
+//			vrFrame.view.setEyePosition(this.toPosition());
+//		}
+//
+//	}
 
-		public Position toPosition() {
-			return new Position(this.latitude, this.longitude, this.elevation);
-		}
-
-		public LatLon toLatLon() {
-			return new LatLon(this.latitude, this.longitude);
-		}
-
-		public CameraLocation(LatLon latLon, double cameraHeightAtFocusElevation) {
-			this.latitude = latLon.getLatitude();
-			this.longitude = latLon.getLongitude();
-			this.elevation = vrFrame.wwd.getView().getGlobe().getElevation(this.latitude, this.longitude) + height;
-			vrFrame.view.setEyePosition(this.toPosition());
-		}
-
-		public void move(Angle bearing, Angle distance) {
-			LatLon newLatLon = LatLon.greatCircleEndPosition(this.toLatLon(),bearing,distance);
-			this.update(newLatLon);
-			vrFrame.view.setEyePosition(this.toPosition());
-		}
-
-		public void update(LatLon location) {
-			this.latitude = location.getLatitude();
-			this.longitude = location.getLongitude();
-			vrFrame.view.setEyePosition(this.toPosition());
-		}
-
+	public Angle getCurrentHeading(){
+		// Rotation
+		// Basic method: rotate 2 degrees per update
+		float numSteps = (System.currentTimeMillis() - startTime)/this.millisPerStep; 
+		return Angle.fromDegrees(dphi.degrees*numSteps);
+	}
+	
+	public Angle getCurrentPitch(){
+		//default: just point 40 degrees from normal
+		return Angle.fromDegrees(40);
 	}
 
-	class PrecacheTravelTask extends TimerTask {
-		LatLon focus;
-		CameraLocation cam;
-		double curRadius; //meters
-		Angle theta;
-		Angle dtheta;
-		double cameraHeightAtFocusElevation;
-		// reminder: dtheta = step size / radius
+	public Position getCurrentPosition() {
 
-		PrecacheTravelTask(LatLon focus) {
-			this.focus = focus;
-			curRadius = 1;
-			theta = Angle.ZERO;
-			dtheta = Angle.fromRadians(stepSize / 100*curRadius);
-			cameraHeightAtFocusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude()) + height;
-			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),cameraHeightAtFocusElevation);			
+		//switch to next location, if appropriate
+		if((System.currentTimeMillis() - startTime)>this.millisToSpendAtEachLoc){
+			this.resetRobotToNextLocation();
 		}
+		
+		//the first term here adds the steps that were executed on previous visits to the current location
+		float numSteps = (timesThroughAllLocations*stepsPerTimeAtLoc) + (System.currentTimeMillis() - startTime)/this.millisPerStep; 
 
-		public void run() {
-			theta = theta.add(dtheta);
-			if (theta.radians > (Math.PI * 2)) {
-				theta = Angle.ZERO;
-				curRadius += 1;
-				dtheta = Angle.fromRadians(stepSize / 100*curRadius);
-			}			
-			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(curRadius*radiansPer100m));
-			cam = new CameraLocation(latlon,cameraHeightAtFocusElevation);
+		dtheta = Angle.fromRadians(stepSize / radius);
+		theta = Angle.fromDegrees(dtheta.degrees*numSteps);
+		radius = dradius + (dradius/(Math.PI * 2))*theta.radians;
+		intervalsCounter++;
+		//			if (theta.radians > (Math.PI * 2)) {
+		//				if (DEBUG_MODE_ON) { System.out.println(theta.radians + ", " + dtheta.radians); }
+		//				theta = Angle.ZERO;
+		//				circleIndex += 1;
+		//				dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
+		//				if (DEBUG_MODE_ON) { 
+		//					System.out.println("Next Circle: " + circleIndex + ", " + dtheta.degrees); 
+		//				}
+		//			}			
+		LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(radius * radiansPerMeter));
 
-			//upates a surface line with the new position, this line will show the entire camera path
-			if(DEBUG_MODE_ON){
+		//updates a surface line with the new position, this line will show the entire camera path
+		if(DEBUG_MODE_ON){
+
+			//only add every 5th point so that the line doesn't get too many vertices
+			if(intervalsCounter%5==0){
 				debugLocations.add(latlon);
-				
-				//only update the line every 20 iterations or so to save CPU
-				if(debugLocations.size()%10==0){
-					debugLine.setLocations(debugLocations);
-				}
+			}
+
+			//only update the line every 10 iterations or so to save CPU
+			if(debugLocations.size()%2==0){
+				debugLine.setLocations(debugLocations);
 			}
 		}
+		return Position.fromDegrees(latlon.latitude.degrees, latlon.longitude.degrees, focusElevation+height);
 	}
+
 	public static void test() {
-		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
+		//		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
 	}
 	public static void main(String[] args) {
-		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
+		//		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
 
 
 	}
 	public void start() {
-		Timer pulse = new Timer();
-		//Grand Canyon
-//		pulse.schedule(new PrecacheTravelTask(LatLon.fromDegrees(36.19529915228048,-111.7481440380943)), 0, 50);
-
+		vrFrame.setRobotModeOn(true);
+		vrFrame.getSampleLocationsProvider().reset();
+		
 		//Atlanta - easier for debugging
-		pulse.schedule(new PrecacheTravelTask(LatLon.fromDegrees(33.755,-84.39)), 0, 50);
-		// TODO Auto-generated method stub
+		resetRobotToNextLocation();
 
 	}
+
+	/**
+	 * Take the robot to the next sample location.
+	 */
+	private void resetRobotToNextLocation() {
+		startTime = System.currentTimeMillis();
+		focus = new LatLon(vrFrame.getSampleLocationsProvider().getNextLocation().getPosition());//LatLon.fromDegrees(33.755,-84.39);
+		theta = Angle.ZERO;
+		phi = Angle.ZERO;
+		focusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude());
+		
+		//when we get back to the original sample location, note that we have cycled through all locations one more time
+		if(vrFrame.getSampleLocationsProvider().getCurLocIndex()==0){
+			this.timesThroughAllLocations++;
+		}
+		if(DEBUG_MODE_ON){
+			debugLocations.clear();
+		}
+	}
+
+	public void end() {
+		vrFrame.setRobotModeOn(false);
+		vrFrame.getSampleLocationsProvider().reset();
+	}
+
 }

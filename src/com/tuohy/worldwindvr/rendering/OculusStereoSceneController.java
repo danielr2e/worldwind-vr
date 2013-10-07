@@ -272,12 +272,17 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		View dcView = dc.getView();
 
 		//consult the oculus for the current camera orientation
-		if(oculusRift.isInitialized()){
+		if(!vrFrame.isRobotModeOn() && oculusRift.isInitialized()){
 			oculusRift.poll();
 			dcView.setHeading(Angle.fromDegrees(this.referenceYawAngleDegrees + oculusRift.getYawDegrees_LH()));
 			dcView.setRoll(Angle.fromDegrees(oculusRift.getRollDegrees_LH()));
 			dcView.setPitch((Angle.fromDegrees((this.referencePitchAngleDegrees-oculusRift.getPitchDegrees_LH())+90)));
 			//		System.out.println(oculusRift.getYawDegrees_LH() + " " + oculusRift.getRollDegrees_LH() + " " + oculusRift.getPitchDegrees_LH()+90);
+		}
+		else if(vrFrame.isRobotModeOn()){
+			dcView.setEyePosition(vrFrame.getRobot().getCurrentPosition());
+			dcView.setHeading(vrFrame.getRobot().getCurrentHeading());
+			dcView.setPitch(vrFrame.getRobot().getCurrentPitch());
 		}
 
 //		printCameraPosAndOrientation(dcView);
@@ -569,4 +574,5 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	public void setReferenceYawAngleDegrees(double referenceYawAngleDegrees) {
 		this.referenceYawAngleDegrees = referenceYawAngleDegrees;
 	}
+
 }

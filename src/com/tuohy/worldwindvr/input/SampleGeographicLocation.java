@@ -1,5 +1,7 @@
 package com.tuohy.worldwindvr.input;
 
+import gov.nasa.worldwind.geom.Position;
+
 /**
  * Describes an example location for use with WorldWindVR
  * @author dtuohy
@@ -8,11 +10,11 @@ package com.tuohy.worldwindvr.input;
 public class SampleGeographicLocation {
 
 	String locationName;
-	double[] locationParams;
-	
-	public SampleGeographicLocation(String locationName, double[] locationParams){
+	Position position;
+
+	public SampleGeographicLocation(String locationName, Position pos){
 		this.locationName = locationName;
-		this.locationParams = locationParams;
+		this.position = pos;
 	}
 	
 	public String getLocationName() {
@@ -21,11 +23,11 @@ public class SampleGeographicLocation {
 	public void setLocationName(String locationName) {
 		this.locationName = locationName;
 	}
-	public double[] getLocationParams() {
-		return locationParams;
+	public Position getPosition() {
+		return position;
 	}
-	public void setLocationParams(double[] locationParams) {
-		this.locationParams = locationParams;
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 	
 }

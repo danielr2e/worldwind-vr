@@ -23,17 +23,17 @@ import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
 public class WorldwindVRMouseListener implements MouseMotionListener {
 
 	WorldWindVR vrFrame;
-	
+
 	//used to manipulate the mouse for first person control
 	Robot robot;
-	
+
 	//display dimensions
 	int halfWidth;
 	int halfHeight;
-	
+
 	long lastMouseMoveTime;
-	
-	
+
+
 	public WorldwindVRMouseListener(WorldWindVR vrFrame) {
 		this.vrFrame = vrFrame;
 		try {
@@ -43,33 +43,39 @@ public class WorldwindVRMouseListener implements MouseMotionListener {
 		}
 		halfWidth = (int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2.0);
 		halfHeight = (int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2.0);
-		
+
 		// Transparent 16 x 16 pixel cursor image.
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 
 		// Create a new blank cursor.
 		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-		    cursorImg, new Point(0, 0), "blank cursor");
+				cursorImg, new Point(0, 0), "blank cursor");
 
 		// Set the blank cursor to the JFrame.
 		vrFrame.setCursor(blankCursor);
 	}
-	
+
 	public void mouseMoved(MouseEvent e) {
 
 		OculusStereoSceneController c = vrFrame.getOculusSceneController();
-		
+
 		//change the yaw reference angle based on the mouse's x movement
-		float xMoveDistDegrees = (halfWidth - e.getX())*WorldWindVRConstants.MOUSE_MOVE_DEGREES_PER_PIXEL;	
-		c.setReferenceYawAngleDegrees(normalizeDegrees(c.getReferenceYawAngleDegrees() - xMoveDistDegrees));
+		if(!vrFrame.isRobotModeOn()){
+			float xMoveDistDegrees = (halfWidth - e.getX())*WorldWindVRConstants.MOUSE_MOVE_DEGREES_PER_PIXEL;	
+			c.setReferenceYawAngleDegrees(normalizeDegrees(c.getReferenceYawAngleDegrees() - xMoveDistDegrees));
+			
+			//it is unclear if there is a good way to integrate y mouse look, since it permits strange contortions
+			//of the view (e.g. flipping the head upside down)
+			//		float yMoveDistDegrees = -(halfHeight - e.getY())*WorldWindVRConstants.MOUSE_MOVE_DEGREES_PER_PIXEL;
+			//		c.setReferencePitchAngleDegrees(normalizeDegrees(c.getReferencePitchAngleDegrees() - yMoveDistDegrees));
+
+			//restore the cursor to it's original position
+			robot.mouseMove(halfWidth, halfHeight);
 		
-		//it is unclear if there is a good way to integrate y mouse look, since it permits strange contortions
-		//of the view (e.g. flipping the head upside down)
-//		float yMoveDistDegrees = -(halfHeight - e.getY())*WorldWindVRConstants.MOUSE_MOVE_DEGREES_PER_PIXEL;
-//		c.setReferencePitchAngleDegrees(normalizeDegrees(c.getReferencePitchAngleDegrees() - yMoveDistDegrees));
-		
-		//restore the cursor to it's original position
-		robot.mouseMove(halfWidth, halfHeight);
+		}
+		else{
+			e.consume();
+		}
 	}
 
 	/**
@@ -89,7 +95,7 @@ public class WorldwindVRMouseListener implements MouseMotionListener {
 
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

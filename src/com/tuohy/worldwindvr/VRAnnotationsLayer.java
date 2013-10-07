@@ -97,6 +97,11 @@ public class VRAnnotationsLayer extends RenderableLayer {
 
 		public FadeInOutMessageTask(int seconds){
 			totalTimes = seconds*10;
+			
+			//if seconds is less than 0, we show the message until it is dismissed
+			if(seconds<0){
+				totalTimes = Integer.MAX_VALUE;
+			}
 		}
 
 		public void run() {
