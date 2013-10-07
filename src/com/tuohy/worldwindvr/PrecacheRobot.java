@@ -32,6 +32,7 @@ public class PrecacheRobot {
 	// rem: 6378.137 km/earth radian. We want ~1km per revolution, so 1/100th of a km per update
 	final double height = 1000; // meters above ground
 	final double radiansPer100m = 1.0 / 63781.37;
+	final double radiansPerMeter = 1.0/6378137;
 	final double stepSize = 5; // meters
 	WorldWindVR vrFrame;
 	WorldWindVRKeyboardListener vrKey;
@@ -68,10 +69,11 @@ public class PrecacheRobot {
 			return new LatLon(this.latitude, this.longitude);
 		}
 
-		public CameraLocation(LatLon latLon, double cameraHeightAtFocusElevation) {
+		public CameraLocation(LatLon latLon, double fixedHeight) {
 			this.latitude = latLon.getLatitude();
 			this.longitude = latLon.getLongitude();
-			this.elevation = vrFrame.wwd.getView().getGlobe().getElevation(this.latitude, this.longitude) + height;
+			//this.elevation = vrFrame.wwd.getView().getGlobe().getElevation(this.latitude, this.longitude) + height;
+			this.elevation = fixedHeight;
 			vrFrame.view.setEyePosition(this.toPosition());
 		}
 
@@ -92,35 +94,39 @@ public class PrecacheRobot {
 	class PrecacheTravelTask extends TimerTask {
 		LatLon focus;
 		CameraLocation cam;
-		int circleIndex = 1;
-		double dradius = 100; // distance between each circle;
+		//int circleIndex = 1;
+		double radius = 100; // 100 + (dradius/2pi)theta
+		double dradius = 100; // distance(m) between each loop of the spiral
 		Angle theta;
 		Angle dtheta;
-		double cameraHeightAtFocusElevation;
+		double focusElevation;
 		// reminder: dtheta = step size / radius
 
 		PrecacheTravelTask(LatLon focus) {
 			this.focus = focus;
-			circleIndex = 1;
+//			circleIndex = 1;
 			theta = Angle.ZERO;
-			dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
-			cameraHeightAtFocusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude()) + height;
-			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),cameraHeightAtFocusElevation);			
+			dtheta = Angle.fromRadians(stepSize / radius);
+			focusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude());
+			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),focusElevation);
+			vrFrame.view.setPitch(Angle.fromDegrees(-60));
 		}
 
 		public void run() {
+			dtheta = Angle.fromRadians(stepSize / radius);
 			theta = theta.add(dtheta);
-			if (theta.radians > (Math.PI * 2)) {
-				if (DEBUG_MODE_ON) { System.out.println(theta.radians + ", " + dtheta.radians); }
-				theta = Angle.ZERO;
-				circleIndex += 1;
-				dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
-				if (DEBUG_MODE_ON) { 
-					System.out.println("Next Circle: " + circleIndex + ", " + dtheta.degrees); 
-				}
-			}			
-			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(circleIndex*radiansPer100m));
-			cam = new CameraLocation(latlon,cameraHeightAtFocusElevation);
+			radius = 100 + (100/(Math.PI * 2))*theta.radians;
+//			if (theta.radians > (Math.PI * 2)) {
+//				if (DEBUG_MODE_ON) { System.out.println(theta.radians + ", " + dtheta.radians); }
+//				theta = Angle.ZERO;
+//				circleIndex += 1;
+//				dtheta = Angle.fromRadians(stepSize / (dradius*circleIndex));
+//				if (DEBUG_MODE_ON) { 
+//					System.out.println("Next Circle: " + circleIndex + ", " + dtheta.degrees); 
+//				}
+//			}			
+			LatLon latlon = LatLon.greatCircleEndPosition(focus,theta,Angle.fromRadians(radius * radiansPerMeter));
+			cam = new CameraLocation(latlon,focusElevation+height);
 			
 			// Rotation
 			// Basic method: rotate 2 degrees per update
