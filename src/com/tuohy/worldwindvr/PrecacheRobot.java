@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -17,7 +16,6 @@ import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.SurfacePolyline;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
 
-import com.tuohy.worldwindvr.input.SampleGeographicLocation;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
 
@@ -99,6 +97,8 @@ public class PrecacheRobot {
 		double dradius = 100; // distance(m) between each loop of the spiral
 		Angle theta;
 		Angle dtheta;
+		Angle phi;
+		Angle dphi;
 		double focusElevation;
 		// reminder: dtheta = step size / radius
 
@@ -106,9 +106,11 @@ public class PrecacheRobot {
 			this.focus = focus;
 //			circleIndex = 1;
 			theta = Angle.ZERO;
+			phi = Angle.ZERO;
+			dphi = Angle.fromDegrees(2);
 			dtheta = Angle.fromRadians(stepSize / radius);
 			focusElevation = vrFrame.wwd.getView().getGlobe().getElevation(focus.getLatitude(), focus.getLongitude());
-			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),focusElevation);
+			cam = new CameraLocation(LatLon.greatCircleEndPosition(focus, Angle.ZERO, Angle.fromRadians(radiansPer100m)),focusElevation+height);
 			vrFrame.view.setPitch(Angle.fromDegrees(-60));
 		}
 
@@ -130,8 +132,8 @@ public class PrecacheRobot {
 			
 			// Rotation
 			// Basic method: rotate 2 degrees per update
-			Angle h = vrFrame.view.getHeading();
-			vrFrame.view.setHeading(h.add(Angle.fromDegrees(2)));
+			phi = phi.add(dphi);
+			vrFrame.view.setHeading(phi);
 
 			//updates a surface line with the new position, this line will show the entire camera path
 			if(DEBUG_MODE_ON){
@@ -145,10 +147,10 @@ public class PrecacheRobot {
 		}
 	}
 	public static void test() {
-		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
+//		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
 	}
 	public static void main(String[] args) {
-		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
+//		SampleGeographicLocation spot = new SampleGeographicLocation("The Grand Canyon",new double[]{110.12,60.11,36.19529915228048,-111.7481440380943,1530});
 
 
 	}
