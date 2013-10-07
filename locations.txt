@@ -1,0 +1,6 @@
+# Comments are ignored
+#Name can be any length, double latitude, double longitude, double height in meters
+Uluru, -25.345, 131.036111, 863
+# Are comments working correctly?
+Ha Long Bay, 20.9, 107.2, 50
+Hoover Dam, 36.015556, -114.737778, 375
