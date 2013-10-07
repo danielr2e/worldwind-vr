@@ -170,10 +170,7 @@ public class PrecacheRobot {
 	public void start() {
 		vrFrame.setRobotModeOn(true);
 		vrFrame.getSampleLocationsProvider().reset();
-		
-		//Atlanta - easier for debugging
 		resetRobotToNextLocation();
-
 	}
 
 	/**
