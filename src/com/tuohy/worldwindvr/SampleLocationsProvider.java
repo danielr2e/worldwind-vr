@@ -29,16 +29,21 @@ public class SampleLocationsProvider {
 	}
 	
 	public SampleLocationsProvider(String filename) {
-		cameraLocations.addAll(SampleGeographicLocation.fromFileLocation(filename));
+		try {
+			cameraLocations.addAll(SampleGeographicLocation.fromFileLocation(filename));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 		
-		if (cameraLocations.size() == 0) {
-			System.err.println("Zero locations read from file. Populating with hard-coded locations.");
-//			sample locations which the user can switch between with the space bar
-			cameraLocations.add(new SampleGeographicLocation("The Grand Canyon",Position.fromDegrees(36.19529915228048,-111.7481440380943,1530.0)));
-			cameraLocations.add(new SampleGeographicLocation("Half Dome - Yosemite National Park",Position.fromDegrees(37.71666068247625,-119.5583673004536,1956.18)));
-			cameraLocations.add(new SampleGeographicLocation("Cascades Volcano Range",Position.fromDegrees(46.4546216,-121.495883,1938.0)));
-			cameraLocations.add(new SampleGeographicLocation("Chamonix - Aiguille du Midi",Position.fromDegrees(45.8786,6.8872,4250.0)));
-			cameraLocations.add(new SampleGeographicLocation("Alpstein, Switzerland",Position.fromDegrees(47.2500,9.3333,2030.0)));
+			if (cameraLocations.size() == 0) {
+				System.err.println("Zero locations read from file. Populating with hard-coded locations.");
+				//			sample locations which the user can switch between with the space bar
+				cameraLocations.add(new SampleGeographicLocation("The Grand Canyon",Position.fromDegrees(36.19529915228048,-111.7481440380943,1530.0)));
+				cameraLocations.add(new SampleGeographicLocation("Half Dome - Yosemite National Park",Position.fromDegrees(37.71666068247625,-119.5583673004536,1956.18)));
+				cameraLocations.add(new SampleGeographicLocation("Cascades Volcano Range",Position.fromDegrees(46.4546216,-121.495883,1938.0)));
+				cameraLocations.add(new SampleGeographicLocation("Chamonix - Aiguille du Midi",Position.fromDegrees(45.8786,6.8872,4250.0)));
+				cameraLocations.add(new SampleGeographicLocation("Alpstein, Switzerland",Position.fromDegrees(47.2500,9.3333,2030.0)));
+			}
 		}
 	}
 
