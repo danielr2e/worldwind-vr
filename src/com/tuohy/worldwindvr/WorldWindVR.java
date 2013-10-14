@@ -30,6 +30,8 @@ import com.tuohy.worldwindvr.scratch.Throwaway3dModelsLayer;
  */
 public class WorldWindVR extends Frame{
 
+	public enum InteractionMode{VR,ROBOT,MENU};
+	
 	//the worldwind OpenGL canvas
 	WorldWindowGLCanvas wwd;
 	
@@ -40,9 +42,12 @@ public class WorldWindVR extends Frame{
 	private VRAnnotationsLayer annotationsLayer;
 	
 	//whether to use the rift and interpret mouse movements
-	boolean robotModeOn = false;
+	InteractionMode currentMode = InteractionMode.VR;
 	//robot that is used to precache imagery
 	private PrecacheRobot robot;
+	
+	// displays messages, menus, cursor, etc.
+	private VRHudLayer menuLayer;
 	
 	//contains the locations that the user can rotate through
 	SampleLocationsProvider sampleLocationsProvider = new SampleLocationsProvider();
@@ -69,7 +74,7 @@ public class WorldWindVR extends Frame{
 				
 		wwd.addMouseMotionListener(new WorldwindVRMouseListener(this));
 		
-		//TODO: For some reason Bing Imagerly layer MURDERS frame rate, but 
+		//TODO: For some reason Bing Imagery layer MURDERS frame rate, but 
 		//the virtual earth aerial imagery does not (although much of the imagery
 		//appears to be the same?  Do not know why.
 		//From neilson: http://forum.worldwindcentral.com/showpost.php?p=103021&postcount=19
@@ -98,8 +103,10 @@ public class WorldWindVR extends Frame{
 		}
 		
 		//prepare annotations layer
-		annotationsLayer = new VRAnnotationsLayer();
-		wwd.getModel().getLayers().add(annotationsLayer);
+//		annotationsLayer = new VRAnnotationsLayer();
+//		wwd.getModel().getLayers().add(annotationsLayer);
+		menuLayer = new VRHudLayer();
+		wwd.getModel().getLayers().add(menuLayer);
 		robot = new PrecacheRobot(vrkbl, this);
 
 		add(wwd);
@@ -129,6 +136,10 @@ public class WorldWindVR extends Frame{
 	
 	public VRAnnotationsLayer getAnnotationsLayer() {
 		return annotationsLayer;
+	}
+	
+	public VRHudLayer getMenuLayer() {
+		return menuLayer;
 	}
 
 	public static void main(String[] args) {
@@ -175,11 +186,11 @@ public class WorldWindVR extends Frame{
 		return robot;
 	}
 	
-	public boolean isRobotModeOn() {
-		return robotModeOn;
+	public InteractionMode getCurrentInteractionMode() {
+		return this.currentMode;
 	}
 
-	public void setRobotModeOn(boolean robotModeOn) {
-		this.robotModeOn = robotModeOn;
+	public void setCurrentInteractionMode(InteractionMode mode) {
+		this.currentMode = mode;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.tuohy.worldwindvr.WorldWindVR;
+import com.tuohy.worldwindvr.WorldWindVR.InteractionMode;
 
 public class WorldWindVRKeyboardListener implements KeyListener {
 
@@ -27,9 +28,9 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		
 		//any key press disabled imagery caching mode
-		if(vrFrame.isRobotModeOn()){
+		if(vrFrame.getCurrentInteractionMode()==InteractionMode.ROBOT){
 			vrFrame.getRobot().end();
-			vrFrame.getAnnotationsLayer().showMessageImmediately("WorldWindVR",3);
+			vrFrame.getMenuLayer().showMessageImmediately("WorldWindVR",3);
 		}
 		else{
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -59,7 +60,7 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 	private void goToNextLocation() {
 		SampleGeographicLocation loc = vrFrame.getSampleLocationsProvider().getNextLocation();
 		vrFrame.viewToLocation(loc.getPosition());
-		vrFrame.getAnnotationsLayer().showMessageImmediately(loc.getLocationName(), 4);
+		vrFrame.getMenuLayer().showMessageImmediately(loc.getLocationName(), 4);
 	}
 
 	public void keyTyped(KeyEvent e) {

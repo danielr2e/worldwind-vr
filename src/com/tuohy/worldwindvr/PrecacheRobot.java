@@ -13,6 +13,7 @@ import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.SurfacePolyline;
 import gov.nasa.worldwindx.examples.ApplicationTemplate;
 
+import com.tuohy.worldwindvr.WorldWindVR.InteractionMode;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
 
@@ -80,29 +81,6 @@ public class PrecacheRobot {
 		}
 	}
 
-//	class CameraLocation {
-//		Angle latitude;
-//		Angle longitude;
-//		double elevation;
-//
-//		public Position toPosition() {
-//			return new Position(this.latitude, this.longitude, this.elevation);
-//		}
-//
-//		public LatLon toLatLon() {
-//			return new LatLon(this.latitude, this.longitude);
-//		}
-//
-//		public CameraLocation(LatLon latLon, double fixedHeight) {
-//			this.latitude = latLon.getLatitude();
-//			this.longitude = latLon.getLongitude();
-//			//this.elevation = vrFrame.wwd.getView().getGlobe().getElevation(this.latitude, this.longitude) + height;
-//			this.elevation = fixedHeight;
-//			vrFrame.view.setEyePosition(this.toPosition());
-//		}
-//
-//	}
-
 	public Angle getCurrentHeading(){
 		// Rotation
 		// Basic method: rotate 2 degrees per update
@@ -165,7 +143,7 @@ public class PrecacheRobot {
 
 	}
 	public void start() {
-		vrFrame.setRobotModeOn(true);
+		vrFrame.setCurrentInteractionMode(InteractionMode.ROBOT);
 		vrFrame.getSampleLocationsProvider().reset();
 		resetRobotToNextLocation();
 	}
@@ -190,7 +168,7 @@ public class PrecacheRobot {
 	}
 
 	public void end() {
-		vrFrame.setRobotModeOn(false);
+		vrFrame.setCurrentInteractionMode(InteractionMode.VR);
 		vrFrame.getSampleLocationsProvider().reset();
 	}
 

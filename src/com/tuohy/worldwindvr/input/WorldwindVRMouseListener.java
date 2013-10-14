@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 
 import com.tuohy.worldwindvr.WorldWindVR;
 import com.tuohy.worldwindvr.WorldWindVRConstants;
+import com.tuohy.worldwindvr.WorldWindVR.InteractionMode;
 import com.tuohy.worldwindvr.rendering.OculusStereoSceneController;
 
 /**
@@ -48,8 +49,7 @@ public class WorldwindVRMouseListener implements MouseMotionListener {
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 
 		// Create a new blank cursor.
-		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-				cursorImg, new Point(0, 0), "blank cursor");
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
 
 		// Set the blank cursor to the JFrame.
 		vrFrame.setCursor(blankCursor);
@@ -60,7 +60,7 @@ public class WorldwindVRMouseListener implements MouseMotionListener {
 		OculusStereoSceneController c = vrFrame.getOculusSceneController();
 
 		//change the yaw reference angle based on the mouse's x movement
-		if(!vrFrame.isRobotModeOn()){
+		if(vrFrame.getCurrentInteractionMode()==InteractionMode.VR){
 			float xMoveDistDegrees = (halfWidth - e.getX())*WorldWindVRConstants.MOUSE_MOVE_DEGREES_PER_PIXEL;	
 			c.setReferenceYawAngleDegrees(normalizeDegrees(c.getReferenceYawAngleDegrees() - xMoveDistDegrees));
 			

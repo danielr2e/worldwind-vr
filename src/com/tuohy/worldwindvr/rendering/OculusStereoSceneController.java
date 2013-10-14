@@ -31,6 +31,7 @@ import javax.media.opengl.GLCapabilitiesImmutable;
 
 import com.tuohy.worldwindvr.WorldWindVR;
 import com.tuohy.worldwindvr.WorldWindVRConstants;
+import com.tuohy.worldwindvr.WorldWindVR.InteractionMode;
 import com.tuohy.worldwindvr.input.VRFlyView;
 
 import de.fruitfly.ovr.HMDInfo;
@@ -272,14 +273,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		View dcView = dc.getView();
 
 		//consult the oculus for the current camera orientation
-		if(!vrFrame.isRobotModeOn() && oculusRift.isInitialized()){
+		if(vrFrame.getCurrentInteractionMode()!=InteractionMode.ROBOT && oculusRift.isInitialized()){
 			oculusRift.poll();
 			dcView.setHeading(Angle.fromDegrees(this.referenceYawAngleDegrees + oculusRift.getYawDegrees_LH()));
 			dcView.setRoll(Angle.fromDegrees(oculusRift.getRollDegrees_LH()));
 			dcView.setPitch((Angle.fromDegrees((this.referencePitchAngleDegrees-oculusRift.getPitchDegrees_LH())+90)));
 			//		System.out.println(oculusRift.getYawDegrees_LH() + " " + oculusRift.getRollDegrees_LH() + " " + oculusRift.getPitchDegrees_LH()+90);
 		}
-		else if(vrFrame.isRobotModeOn()){
+		else if(vrFrame.getCurrentInteractionMode()==InteractionMode.ROBOT){
 			dcView.setEyePosition(vrFrame.getRobot().getCurrentPosition());
 			dcView.setHeading(vrFrame.getRobot().getCurrentHeading());
 			dcView.setPitch(vrFrame.getRobot().getCurrentPitch());
@@ -352,7 +353,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		//render into the FBO
 		//left eye
 		((VRFlyView) dcView).applyWithOffset(dc,leftEyeOffsetDir,centerEyePos,hyperStereoLateralOffset,hyperStereoVerticalOffsetMeters);
-		vrFrame.getAnnotationsLayer().prepareForEye(true);
+		vrFrame.getMenuLayer().prepareForEye(true);
 		//		System.out.println("Rendered left eye at " + dcView.getEyePosition());
 
 		//determine the width/height of the actual 'renderable' canvas
@@ -367,7 +368,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 		// Move the view to the right eye, if we are doing true stereoscopy
 		if(this.inStereo){
 			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,centerEyePos,hyperStereoLateralOffset,-hyperStereoVerticalOffsetMeters);
-			vrFrame.getAnnotationsLayer().prepareForEye(false);
+			vrFrame.getMenuLayer().prepareForEye(false);
 			//			System.out.println("Rendered right eye at " + dcView.getEyePosition());
 		}
 		try{

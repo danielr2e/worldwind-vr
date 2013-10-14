@@ -35,7 +35,7 @@ public class OutlinedTextAnnotation extends ImageAnnotation {
 		this.font = font;
 		//compute the needed height/width of the image
 	    
-		Graphics2D tempGraphics = (Graphics2D) new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB).getGraphics();
+		Graphics2D tempGraphics = new BufferedImage(200,200,BufferedImage.TYPE_INT_ARGB).createGraphics();
 		tempGraphics.setFont(font);
 		int width = tempGraphics.getFontMetrics().stringWidth(text)+ 2;
 		int height = tempGraphics.getFontMetrics().getHeight()+ 2;
@@ -58,7 +58,7 @@ public class OutlinedTextAnnotation extends ImageAnnotation {
 	    Shape outline = textTl.getOutline(null);
 	    Rectangle outlineBounds = outline.getBounds();
 	    transform = graphicsContext.getTransform();
-	    transform.translate(width / 2 - (outlineBounds.width / 2), height / 2
+	    transform.translate((width / 2) - (outlineBounds.width / 2), (height / 2)
 	        + (outlineBounds.height / 2));
 	    graphicsContext.transform(transform);
 	    graphicsContext.setStroke(new BasicStroke(4));

@@ -40,11 +40,15 @@ public class SampleGeographicLocation {
 	
 	public static SampleGeographicLocation fromLine(String sglstring) {
 		StringTokenizer tks = new StringTokenizer(sglstring,",");
-		if (tks.countTokens()>=4) {
+		if (tks.countTokens()>=3) {
 			String name = tks.nextToken();
 			double lat = (new Double(tks.nextToken())).doubleValue();
 			double lon = (new Double(tks.nextToken())).doubleValue();
-			double elevation = (new Double(tks.nextToken())).doubleValue();
+			double elevation = 0;
+			if (tks.hasMoreTokens()) {
+				elevation = (new Double(tks.nextToken())).doubleValue();
+			}
+			
 			LatLon ll = LatLon.fromDegrees(lat,lon);
 			Position p = new Position(ll,elevation);
 			if (tks.hasMoreTokens()) {

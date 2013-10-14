@@ -23,12 +23,12 @@ public class VRAnnotationsLayer extends RenderableLayer {
 		}
 		
 		this.showMessageImmediately("Welcome to the WorldWindVR Demo!", 7);
-		this.queueMessage("Use W,A,S,D to Navigate");
-		this.queueMessage("Use Shift Key to Change Navigation Speed");
-		this.queueMessage("Use Space Bar to Change Locations");
-		this.queueMessage("Note: on first visit to any location...");
-		this.queueMessage("...it will take time to cache imagery.");
-		this.queueMessage("Press Escape to Exit");
+//		this.queueMessage("Use W,A,S,D to Navigate");
+//		this.queueMessage("Use Shift Key to Change Navigation Speed");
+//		this.queueMessage("Use Space Bar to Change Locations");
+//		this.queueMessage("Note: on first visit to any location...");
+//		this.queueMessage("...it will take time to cache imagery.");
+//		this.queueMessage("Press Escape to Exit");
 	}
 
 	public void prepareForEye(boolean left){
@@ -43,12 +43,12 @@ public class VRAnnotationsLayer extends RenderableLayer {
 		anchorPointX += 100;
 //		anchorPointY += 110 ;
 
-		int pixelSeparation = 20;
+		int halfPixelSeparation = 20;
 		if(left){
-			messageAnnotation.setScreenPoint(new Point((int) (anchorPointX+pixelSeparation),(int) anchorPointY));
+			messageAnnotation.setScreenPoint(new Point((int) (anchorPointX+halfPixelSeparation),(int) anchorPointY));
 		}
 		else{
-			messageAnnotation.setScreenPoint(new Point((int) (anchorPointX-pixelSeparation),(int) anchorPointY));
+			messageAnnotation.setScreenPoint(new Point((int) (anchorPointX-halfPixelSeparation),(int) anchorPointY));
 		}
 	}
 
