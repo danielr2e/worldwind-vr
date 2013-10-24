@@ -41,7 +41,7 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 			}
 			if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
 				((VRFlyViewInputHandler)vrFrame.getView().getViewInputHandler()).setCameraTranslationSpeed(cameraSpeeds.get(curSpeed).speed);
-				vrFrame.getAnnotationsLayer().showMessageImmediately("Camera Speed: " + cameraSpeeds.get(curSpeed).name, 4);
+				vrFrame.getMenuLayer().showMessageImmediately("Camera Speed: " + cameraSpeeds.get(curSpeed).name, 4);
 				curSpeed++;
 				if(curSpeed>=cameraSpeeds.size()){
 					curSpeed = 0;
@@ -52,7 +52,6 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 			}
 			if (e.getKeyCode() == KeyEvent.VK_R){
 				vrFrame.getRobot().start();
-				vrFrame.getAnnotationsLayer().showMessageImmediately("In Imagery Caching Mode - press any key to exit", -1);
 			}
 		}
 	}

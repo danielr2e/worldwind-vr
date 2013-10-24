@@ -6,9 +6,11 @@
 		<mkdir dir="dist/WorldWindVR" />
 		<mkdir dir="dist/WorldWindVR/lib" />
 		<mkdir dir="dist/WorldWindVR/native_libraries" />
+		<mkdir dir="dist/WorldWindVR/resources" />
 		<copy file="README" todir="dist/WorldWindVR" overwrite="true"/>	
 		<copy file="export/WorldwindVR.jar" todir="dist/WorldWindVR/lib" overwrite="true"/>	
 		<copy file="RunWorldwindVR.bat" todir="dist/WorldWindVR" overwrite="true"/>	
+		<copy file="locations.txt" todir="dist/WorldWindVR" overwrite="true"/>	
 		
 		<!-- copy all files in to the appropriate deployment directories -->
 		<copy todir="dist/WorldWindVR/lib" overwrite="true">
@@ -17,6 +19,9 @@
 		<copy todir="dist/WorldWindVR/native_libraries" overwrite="true">
 			<fileset dir="native_libraries" includes="*.dll"/>
 		</copy>			
+		<copy todir="dist/WorldWindVR/resources" overwrite="true">
+			<fileset dir="resources" includes="*"/>
+		</copy>		
 		<zip destfile="WorldWindVR.zip"
 		       basedir="dist"
 		       update="true"

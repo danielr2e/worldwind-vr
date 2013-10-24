@@ -97,16 +97,16 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	 */
 	protected boolean inStereo = true;
 
-	/** The current stereo mode. May not be set to null; use {@link AVKey#STEREO_MODE_NONE} instead. */
-	protected String stereoMode = AVKey.STEREO_MODE_NONE;
+	/** Required by superclass, but is ignored in WorldWindVR*/
+	protected String stereoMode = AVKey.STEREO_MODE_DEVICE;
+	protected boolean hardwareStereo = false;
 	/** The angle between eyes. Larger angles give increased 3D effect. */
 	protected Angle focusAngle = Angle.fromDegrees(DEFAULT_FOCUS_ANGLE);
 	/** Indicates whether left and right eye positions are swapped. */
 	protected boolean swapEyes = false;
 	/** Indicates the GL drawable capabilities. Non-null only after this scene controller draws once. */
 	protected GLCapabilitiesImmutable capabilities;
-	/** Indicates whether hardware device stereo is available. Valid only after this scene controller draws once. */
-	protected boolean hardwareStereo = false;
+
 
 	//the Frame that contains the UI
 	WorldWindVR vrFrame;
@@ -126,7 +126,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	protected int colorTextureID = -1;
 	protected int framebufferID = -1;
 	protected int depthRenderBufferID = -1;
-	
+
 	//these are the 'reference' angles, controlled by the mouse, from which the user can look around in the rift
 	private double referencePitchAngleDegrees;
 	private double referenceYawAngleDegrees;
@@ -141,21 +141,36 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		HMDInfo hmdInfo = oculusRift.getHMDInfo();
 		System.out.println(hmdInfo);
-
-		String stereo = System.getProperty(AVKey.STEREO_MODE);
-
-		if ("redblue".equalsIgnoreCase(stereo))
-			this.setStereoMode(AVKey.STEREO_MODE_RED_BLUE);
-		else if ("device".equalsIgnoreCase(stereo))
-			this.setStereoMode(AVKey.STEREO_MODE_DEVICE);
 	}
+	/**
+	 * We override this for WorldWindVR to eliminate 'pick', which has dubious utility
+	 * in first person mode and is expensive (particularly at low resolutions, for
+	 * unknown reasons).
+	 */
+	public void doRepaint(DrawContext dc)
+	{
+		this.initializeFrame(dc);
+		try
+		{
+			this.applyView(dc);
+			this.createPickFrustum(dc);
+			this.createTerrain(dc);
+			this.preRender(dc);
+			this.clearFrame(dc);
+			//this.pick(dc);
+			this.clearFrame(dc);
+			this.draw(dc);
+		}
+		finally
+		{
+			this.finalizeFrame(dc);
+		}
+	}
+
 
 	public void setStereoMode(String mode)
 	{
 		this.stereoMode = mode != null ? mode : AVKey.STEREO_MODE_NONE;
-
-		// If device-implemented stereo is used, stereo is considered always in effect no matter what the stereo mode.
-		this.inStereo = this.isHardwareStereo() || AVKey.STEREO_MODE_RED_BLUE.equals(this.stereoMode);
 	}
 
 	public String getStereoMode()
@@ -208,20 +223,6 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	@Override
 	protected void draw(DrawContext dc)
 	{
-		// Capture the capabilities actually in use.
-		if (this.capabilities == null)
-		{
-			this.capabilities = dc.getGLContext().getGLDrawable().getChosenGLCapabilities();
-			this.hardwareStereo = this.capabilities.getStereo();
-			this.inStereo = this.isHardwareStereo() ? true : this.isInStereo();
-		}
-
-		// If stereo isn't to be applied, just draw and return.
-		if (!isInStereo())
-		{
-			super.draw(dc);
-			return;
-		}
 		this.doDrawStereoOculus(dc);        
 	}
 
@@ -261,10 +262,10 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		//print out the frame rate
 		frameCount++;
-		if(frameCount==20){
+		if(frameCount==60){
 			frameCount = 0;
 			double elapsed = System.currentTimeMillis() - firstFrameTime;
-			System.out.println("FPS: " + 1.0/(elapsed/20000.0));
+			System.out.println("FPS: " + 1.0/(elapsed/60000.0));
 			firstFrameTime = System.currentTimeMillis();
 		}
 
@@ -284,9 +285,10 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			dcView.setEyePosition(vrFrame.getRobot().getCurrentPosition());
 			dcView.setHeading(vrFrame.getRobot().getCurrentHeading());
 			dcView.setPitch(vrFrame.getRobot().getCurrentPitch());
+			dcView.setRoll(Angle.ZERO);
 		}
 
-//		printCameraPosAndOrientation(dcView);
+		//printCameraPosAndOrientation(dcView);
 
 		//set the FOV appropriate for the rift
 		dcView.setFieldOfView(Angle.fromDegrees(DEFAULT_FOV));
@@ -302,8 +304,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			int width = gd.getDisplayMode().getWidth();
 			int height = gd.getDisplayMode().getHeight();
 
-			//It appears I can essentially set the render resolution to whatever I want here, but it doesn't seem to affect
-			//framerate - why is this?
+			//It appears I can essentially set the render resolution to whatever I want here
 			width = (int) WorldWindVRConstants.RenderHorizontalResolution;
 			height = (int) WorldWindVRConstants.RenderVerticalResolution;
 
@@ -366,7 +367,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 
 		//right eye
 		// Move the view to the right eye, if we are doing true stereoscopy
-		if(this.inStereo){
+		if(this.isInStereo()){
 			((VRFlyView) dcView).applyWithOffset(dc,rightEyeOffsetDir,centerEyePos,hyperStereoLateralOffset,-hyperStereoVerticalOffsetMeters);
 			vrFrame.getMenuLayer().prepareForEye(false);
 			//			System.out.println("Rendered right eye at " + dcView.getEyePosition());
@@ -375,6 +376,8 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
 			gl.glViewport(xOffset+renderableWidth, yOffset, renderableWidth, renderableHeight);
 			super.draw(dc);
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -418,7 +421,14 @@ public class OculusStereoSceneController extends BasicSceneController implements
 			distorter.renderHalfScreenTexturedQuad(gl, 0.0f, 0.0f, 0.5f, 1.0f, true);
 
 			//right eye to screen
-			distorter.renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
+			if(this.isInStereo()){
+				distorter.renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
+			}
+			//if we're not doing stereo rendering, then we just render the left view again, but with right eye distortion
+			else{
+				distorter.renderHalfScreenTexturedQuad(gl, 0.5f, 0.0f, 0.5f, 1.0f, false);
+			}
+
 
 		}
 		finally
@@ -559,7 +569,7 @@ public class OculusStereoSceneController extends BasicSceneController implements
 	public void setVrFrame(WorldWindVR worldWindVR) {
 		this.vrFrame = worldWindVR;
 	}
-	
+
 	public double getReferencePitchAngleDegrees() {
 		return referencePitchAngleDegrees;
 	}

@@ -166,6 +166,8 @@ public class VRFlyView extends BasicFlyView {
         this.projection = Matrix.fromPerspective(this.fieldOfView, viewportWidth, viewportHeight, this.nearClipDistance,
             this.farClipDistance);
 
+        //TODO: This is where I need to skew the frustum!
+        
         // Compute the current frustum.
         this.frustum = Frustum.fromPerspective(this.fieldOfView, (int) viewportWidth, (int) viewportHeight,
             this.nearClipDistance, this.farClipDistance);

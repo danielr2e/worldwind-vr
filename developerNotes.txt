@@ -2,15 +2,15 @@
 Status  |         Description 
  TODO	| Independent movement and look?  This is a cool 'native VR' thing that we might be able to pull off because WW is open source with a custom InputHandler
  TODO   | Can we get the 'Place Names' layer working again?
- TODO   | Figure out why reducing resolution does not impact framerate
- TODO   | Map WASD to arrow movements          
+ DONE   | Figure out why reducing resolution does not impact framerate
+ DONE   | Map WASD to arrow movements          
  TODO   | Remove HUD, or make useful inside Rift
- TODO   | Display in Oculus Rift resolution 1280x800
+ DONE   | Display in Oculus Rift resolution 1280x800
  TODO	| 'Fast' monoscopic rendering (rasterize only one eye with GPU, then copy pixels to other half)
  TODO   | Do something reasonable with vsync (unclear if that means turning on or off) 
  TODO   | Update README, publish to various forums that project is ready for people to play with
- TODO   | Implement 'correct' stereo, which requires more nuanced orientation of the cameras to really simulate human eyes (see http://www.orthostereo.com/geometryopengl.html)
  TODO   | Create JNLP webstart deployment so demo can be easily launched from browser 
+ TODO   | Skew the view frusta for left eye appropriately in VRFlyView.doApply() (see http://www.orthostereo.com/geometryopengl.html and http://www.roadtovr.com/vr-expert-to-oculus-rift-devs-make-sure-youre-doing-3d-right/)
  DONE   | Display in Full Screen  
  DONE   | Use basic First Person view
  DONE   | Create project on GitHub
@@ -30,7 +30,7 @@ Status  |         Description
  DONE   | Devise build process that generates most convenient distribution for users
  DONE   | Turn on best imagery source (bing?)
  DONE   | Implement keyboard shortcuts for 'fast travel' to compelling locations
- DONE   | With extreme head role, stereoscopy is not working correctly for objects which are close to the camera (probably a problem with the camera offset!)
+ DONE   | With extreme head roll, stereoscopy is not working correctly for objects which are close to the camera (probably a problem with the camera offset!)
  
 ================= Development ==================
 **** IDE ****
@@ -77,6 +77,15 @@ Will likely need to use gov.nasa.worldwind.view.firstperson.BasicFlyView
 (1) Someone will probably write a JNI wrapper for us, but if not we have to.
 (2) Someone will probably (even sooner than JNI) write an OpenGL shader or example that could solve both the lens distortion and SBS frame drawing problem for us.
 
+
+Notes on Optimization:
+ - much CPU seems to go to tiling, which is driven by the TiledImageLayer draw method
+  - assembleTiles() and maybe checkTextureExpiration() seem particularly problematic
+ - part of the problem may be that WorldWind was not meant for running at a given FPS, maybe we can eliminate 
+   some of these calculations on 50%-90% of frames?
+ - Mystery: why does frame rate go down at lower resolutions?
+  - gov.nasa.worldwind.AbstractSceneController.pick appears to be taking 4X as long (10% of CPU time total at lower resolution)  
+ 
 
 ============== Fixes for Exceptions you might encounter ===========
 

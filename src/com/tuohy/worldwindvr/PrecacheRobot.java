@@ -146,6 +146,7 @@ public class PrecacheRobot {
 		vrFrame.setCurrentInteractionMode(InteractionMode.ROBOT);
 		vrFrame.getSampleLocationsProvider().reset();
 		resetRobotToNextLocation();
+		vrFrame.getMenuLayer().showMessageImmediately("In Imagery Caching Mode - press any key to exit", -1);
 	}
 
 	/**

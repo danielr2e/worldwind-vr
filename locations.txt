@@ -1,15 +1,13 @@
 # Comments are ignored
 #Name can be any length, double latitude, double longitude, double height in meters
-#Uluru, -25.345, 131.036111, 863
-# Are comments working correctly?
-#Ha Long Bay, 20.9, 107.2, 50
-#Hoover Dam, 36.015556, -114.737778, 375
 The Grand Canyon, 36.19529915228048,-111.7481440380943, 2121
 Half Dome - Yosemite National Park, 37.71666068247625,-119.5583673004536,1956.18
-Cascades Volcano Range, 46.4546216,-121.495883,1938.0
 Chamonix - Aiguille du Midi,45.8786,6.8872,4250.0
-Alpstein - Switzerland,47.2500,9.3333,2030.0
-Glencoe - Scotland,56.6828, 5.1060,1530.0
-Saint Mary's - Glacier National Park,39.8358,-105.6469,1530
-Bora Bora,-16.4944,151.7364,1530
-Niagara Falls,43.08,-79.07,1530
+The Confluence - Canyonlands National Park, 38.17324641762524, -109.92400398002562, 2611
+Cascades Volcano Range, 46.4546216,-121.495883,1938.0
+#Hoover Dam, 36.015556, -114.737778, 375
+#Alpstein - Switzerland,47.2500,9.3333,2030.0
+#Glencoe - Scotland, 56.6827, -5.1026,1530.0
+#Niagara Falls,43.08,-79.07,1530
+#Saint Mary's - Glacier National Park,39.8358,-105.6469,1530
+#Uluru, -25.345, 131.036111, 863
