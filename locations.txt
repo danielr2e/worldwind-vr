@@ -5,6 +5,7 @@ Half Dome - Yosemite National Park, 37.71666068247625,-119.5583673004536,1956.18
 Chamonix - Aiguille du Midi,45.8786,6.8872,4250.0
 The Confluence - Canyonlands National Park, 38.17324641762524, -109.92400398002562, 2611
 Cascades Volcano Range, 46.4546216,-121.495883,1938.0
+#Mount Damavand, 35.955556, 52.11, 10000.0
 #Hoover Dam, 36.015556, -114.737778, 375
 #Alpstein - Switzerland,47.2500,9.3333,2030.0
 #Glencoe - Scotland, 56.6827, -5.1026,1530.0

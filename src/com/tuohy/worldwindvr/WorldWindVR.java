@@ -4,8 +4,6 @@ import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.Version;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.Layer;
 
@@ -14,7 +12,6 @@ import java.awt.Frame;
 import javax.swing.UIManager;
 
 import com.jogamp.opengl.util.FPSAnimator;
-import com.tuohy.worldwindvr.input.SampleGeographicLocation;
 import com.tuohy.worldwindvr.input.VRFlyView;
 import com.tuohy.worldwindvr.input.WorldWindVRKeyboardListener;
 import com.tuohy.worldwindvr.input.WorldwindVRMouseListener;
@@ -94,21 +91,29 @@ public class WorldWindVR extends Frame{
 		//		 wwd.getModel().getLayers().add(new LayerManagerLayer(wwd));
 		//		wwd.getModel().getLayers().getLayerByName("Bing Imagery").setEnabled(true);
 
-		//NOTE: this reduces framerate by about 25%, but that is WAY better than Bing Imagery, which reduces by 60% or more
-		wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setEnabled(false);
-		//		wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setExpiryTime(System.currentTimeMillis() );
-		//This layer appears to be necessary to get the coarse-grained (Zoomed out) view
-		wwd.getModel().getLayers().getLayerByName("Blue Marble May 2004").setEnabled(true);
-		//disabling these two gets us about a 25% boost in framerate
-		wwd.getModel().getLayers().getLayerByName("NASA Blue Marble Image").setEnabled(false);
-		wwd.getModel().getLayers().getLayerByName("i-cubed Landsat").setEnabled(false);
-		//		wwd.getModel().getLayers().getLayerByName("Political Boundaries").setEnabled(true);
+		try{
+			//NOTE: this reduces framerate by about 25%, but that is WAY better than Bing Imagery, which reduces by 60% or more
+			wwd.getModel().getLayers().getLayerByName("MS Virtual Earth Aerial").setEnabled(false);
+			//This layer appears to be necessary to get the coarse-grained (Zoomed out) view
+			wwd.getModel().getLayers().getLayerByName("Blue Marble May 2004").setEnabled(true);
+			//disabling these two gets us about a 25% boost in framerate
+			wwd.getModel().getLayers().getLayerByName("NASA Blue Marble Image").setEnabled(false);
+			wwd.getModel().getLayers().getLayerByName("i-cubed Landsat").setEnabled(false);
 
-		//TODO: this appears not to work when we render on the middle part of the screen with 
-		//offsets (I guess it uses screen coordinates?, can we get it working again?
-		wwd.getModel().getLayers().getLayerByName("Place Names").setEnabled(false);
-		for(Layer l : wwd.getModel().getLayers()){
-			System.out.println(l.getName() + " " + l.getClass() + " " + l.isEnabled());
+			//HUD elements that are not currently adapted to VR
+			wwd.getModel().getLayers().getLayerByName("World Map").setEnabled(false);
+			wwd.getModel().getLayers().getLayerByName("Scale bar").setEnabled(false);
+			wwd.getModel().getLayers().getLayerByName("Compass").setEnabled(false);
+			//		wwd.getModel().getLayers().getLayerByName("Political Boundaries").setEnabled(true);
+
+			//TODO: this appears not to work when we render on the middle part of the screen with 
+			//offsets (I guess it uses screen coordinates?, can we get it working again?
+			wwd.getModel().getLayers().getLayerByName("Place Names").setEnabled(false);
+			for(Layer l : wwd.getModel().getLayers()){
+				System.out.println(l.getName() + " " + l.getClass() + " " + l.isEnabled());
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 
 		//prepare annotations layer

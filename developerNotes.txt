@@ -2,15 +2,15 @@
 Status  |         Description 
  TODO	| Independent movement and look?  This is a cool 'native VR' thing that we might be able to pull off because WW is open source with a custom InputHandler
  TODO   | Can we get the 'Place Names' layer working again?
- DONE   | Figure out why reducing resolution does not impact framerate
- DONE   | Map WASD to arrow movements          
  TODO   | Remove HUD, or make useful inside Rift
- DONE   | Display in Oculus Rift resolution 1280x800
  TODO	| 'Fast' monoscopic rendering (rasterize only one eye with GPU, then copy pixels to other half)
  TODO   | Do something reasonable with vsync (unclear if that means turning on or off) 
  TODO   | Update README, publish to various forums that project is ready for people to play with
  TODO   | Create JNLP webstart deployment so demo can be easily launched from browser 
  TODO   | Skew the view frusta for left eye appropriately in VRFlyView.doApply() (see http://www.orthostereo.com/geometryopengl.html and http://www.roadtovr.com/vr-expert-to-oculus-rift-devs-make-sure-youre-doing-3d-right/)
+ DONE   | Figure out why reducing resolution does not impact framerate
+ DONE   | Map WASD to arrow movements    
+ DONE   | Display in Oculus Rift resolution 1280x800
  DONE   | Display in Full Screen  
  DONE   | Use basic First Person view
  DONE   | Create project on GitHub
@@ -61,16 +61,6 @@ The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the 
 Minecrift probably has the best branch of JRift:
  - https://github.com/mabrowning/JRift
 
-This may provide info on how to render SBS 3D:
- - probably just need to change the viewport before rendering each eye!! http://www.felixgers.de/teaching/jogl/viewport.html
- - will also need to fix whatever is causing stereo to only render if pitch is between 50 and 90 degrees
- - http://fivedots.coe.psu.ac.th/~ad/jg2/jogl4/index.html
- - combine with technique for moving view and rendering both as in StereoOptionSceneController.doDrawToStereoDevice(DrawContext dc)
- - http://stackoverflow.com/questions/5002254/adapt-existing-code-for-opengl-stereoscopic-rendering
-How to enable vsync?
- -  // Enable VSync
-    gl.setSwapInterval(1);
- - from http://stackoverflow.com/questions/6497304/when-using-textures-in-a-jogl-application-ati-graphics-cards-all-eventually-cra
  
 Will likely need to use gov.nasa.worldwind.view.firstperson.BasicFlyView
 
@@ -85,6 +75,10 @@ Notes on Optimization:
    some of these calculations on 50%-90% of frames?
  - Mystery: why does frame rate go down at lower resolutions?
   - gov.nasa.worldwind.AbstractSceneController.pick appears to be taking 4X as long (10% of CPU time total at lower resolution)  
+ 
+Issues to document in README
+ - where imagery is cached and the likely size 
+ - how to fix lilwolf's indexoutofbounds problem
  
 
 ============== Fixes for Exceptions you might encounter ===========
