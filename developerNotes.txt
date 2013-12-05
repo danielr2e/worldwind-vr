@@ -1,5 +1,6 @@
 ================== Tasks ==================
 Status  |         Description 
+ TODO   | Experiment with adaptive camera speed (i.e. slower at lower altitudes), possibly also eliminating camera momentum.
  TODO	| Independent movement and look?  This is a cool 'native VR' thing that we might be able to pull off because WW is open source with a custom InputHandler
  TODO   | Can we get the 'Place Names' layer working again?
  TODO   | Remove HUD, or make useful inside Rift
@@ -47,6 +48,11 @@ The WorldwindVR project is hosted in Git.  Eclipse Juno comes prebuilt with the 
 (5) File ->  New -> Java Project 
 (6) Create project with name worldwind-vr, which will automatically build a project using the Git directory.
 (7) Right click project -> Team -> Share Project -> Git -> Finish (this will actually connect it to Git)
+
+*** Building the Project ***
+The project can be built into a distributable with the targets in the build.xml.  Note however, that to use the target
+that builds the distributable with an EXE (rather than just a .bat), you will need to install Launch4J from 
+http://sourceforge.net/projects/launch4j and point the launch4j.dir property at this installation.
 
 *** Checking out JRift ***
 (1) Copy the following to clipboard: https://github.com/38leinaD/JRift.git

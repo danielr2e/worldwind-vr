@@ -10,6 +10,8 @@ has been tested so far only on Windows, under both 32-bit and 64-bit versions of
 
 If you wish to run from Eclipse, use the run/WorldWindVRTest.launch configuration.
 
+To build the application into a distributable, use the targets in the ANT build.xml.
+
 Thanks are due to the following people:
 
  - 38leinaD for his JRift project as well as the original LWJGL shader (which we adapted for JOGL

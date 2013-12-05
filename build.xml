@@ -1,7 +1,15 @@
 <project name="worldwind-vr" basedir=".">
 	
+	<property name="launch4j.dir" location="C:\Program Files (x86)\Launch4j" />
+	
+	<taskdef name="launch4j"
+	    classname="net.sf.launch4j.ant.Launch4jTask"
+	    classpath="${launch4j.dir}/launch4j.jar
+	        :${launch4j.dir}/lib/xstream.jar" />
+	
+	<!-- Builds a WorldWindVR distribution, although without an EXE (which requires installing launch4j, see buildWindowsDistributionWithExe)-->
 	<target name="buildDistribution" depends="export">
-		<property file="maia.properties"/>
+		<delete dir="dist"/>
 		<mkdir dir="dist" />
 		<mkdir dir="dist/WorldWindVR" />
 		<mkdir dir="dist/WorldWindVR/lib" />
@@ -22,6 +30,7 @@
 		<copy todir="dist/WorldWindVR/resources" overwrite="true">
 			<fileset dir="resources" includes="*"/>
 		</copy>		
+		
 		<zip destfile="WorldWindVR.zip"
 		       basedir="dist"
 		       update="true"
@@ -29,6 +38,16 @@
 		
 	</target>
 	
+	<!-- To use this, you will need to install launch4j and point the launch4j.dir property at it -->
+	<target name="buildWindowsDistributionWithExe" depends="buildDistribution">	
+		<copy file="launch4j/launch.cfg.xml" todir="dist/WorldWindVR" overwrite="true"/>
+		<launch4j configFile="./dist/WorldWindVR/launch.cfg.xml" />
+		<zip destfile="WorldWindVR.zip"
+		       basedir="dist"
+		       update="true"
+		  />
+	</target>
+		
 	<!-- Export the WorldwindVR.jar -->
 	<target name="export">
 		<mkdir dir="export" />

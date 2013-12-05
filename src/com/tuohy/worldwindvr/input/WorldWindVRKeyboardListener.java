@@ -37,7 +37,7 @@ public class WorldWindVRKeyboardListener implements KeyListener {
 				goToNextLocation();
 			}
 			if(e.getKeyCode() == KeyEvent.VK_F1){
-				vrFrame.addTest3dModelsLayer();
+//				vrFrame.addTest3dModelsLayer();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
 				((VRFlyViewInputHandler)vrFrame.getView().getViewInputHandler()).setCameraTranslationSpeed(cameraSpeeds.get(curSpeed).speed);
