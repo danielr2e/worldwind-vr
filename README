@@ -1,7 +1,7 @@
 WorldWindVR - A Virtual Reality Implementation for NASA WorldWind
 
 ====Running====
-To run WorldWindVR, simply double click RunWorldWindVR.bat.  It has been tested so far only on Windows, under both 32-bit 
+To run WorldWindVR, simply double click RunWorldWindVR.exe or RunWorldWindVR.bat.  It has been tested so far only on Windows, under both 32-bit 
 and 64-bit versions of Java (only tested with 1.6, but 1.5 may work).  Mac and Linux support are conceivable, but we are 
 waiting for someone to implement a nice wrapper for the Oculus Rift API on those platforms.
 
